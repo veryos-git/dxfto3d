@@ -371,9 +371,8 @@ difference() {
 // ============================================================
 // DEFAULT RENDER (edit this section for your needs)
 // ============================================================
-iterations = 5;
 
-module part(width, zoffset){
+module part(width, zoffset, iterations){
     translate([0,0,zoffset])
     for (i = [0:iterations-1]) {
         // rotate([0, 0, i * (360 / iterations)])
@@ -388,10 +387,14 @@ module part(width, zoffset){
 
     }
 }
-difference(){
-    part(0.8,0);
-    part(0.4, 0.5);
+iterations_stripes = 5;
 
+for (i = [0:iterations_stripes-1]) {
+    translate([0, i*12, 0])
+    difference(){
+        part(0.8,0, i*2);
+        part(0.4, 0.5, i*2);
+    }
 }
 // ============================================================
 // EXPORT INSTRUCTIONS
