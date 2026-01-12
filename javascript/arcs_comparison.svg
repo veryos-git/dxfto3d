@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="709.9082002025536" height="162.20182226723412" viewBox="0 0 709.9082002025536 162.20182226723412">
+  <style>
+    .original { stroke: blue; stroke-width: 1; }
+    .simplified { stroke: red; stroke-width: 2; }
+    .original-point { fill: darkblue; }
+    .simplified-point { fill: darkred; }
+    .path-point { fill: black; }
+    .title { font-family: Arial, sans-serif; font-size: 14px; fill: black; }
+  </style>
+
+  <!-- Original Lines -->
+  <g id="original" transform="translate(20, 20)">
+    <text x="91.6513667004256" y="-5" class="title" text-anchor="middle">Original (1 lines)</text>
+    <line x1="61.10091113361707" y1="61.10091113361706" x2="122.20182226723412" y2="61.10091113361706" class="original" />
+    <path d="M 122.20182226723412 61.10091113361706 A 30.55045556680853 30.55045556680853 0 0 1 61.10091113361707 61.10091113361707" class="original" fill="none" />
+    <path d="M 91.6513667004256 114.01585236970487 A 61.10091113361706 61.10091113361706 0 0 1 61.10091113361706 61.10091113361707" class="original" fill="none" />
+    <path d="M 122.20182226723412 61.10091113361706 A 61.10091113361706 61.10091113361706 0 0 1 91.6513667004256 114.01585236970487" class="original" fill="none" />
+    <circle cx="61.10091113361707" cy="61.10091113361706" r="2" class="original-point" />
+    <circle cx="122.20182226723412" cy="61.10091113361706" r="2" class="original-point" />
+  </g>
+
+  <!-- Simplified Lines -->
+  <g id="simplified" transform="translate(243.3027334008512, 20)">
+    <text x="91.6513667004256" y="-5" class="title" text-anchor="middle">Simplified (1 lines)</text>
+    <line x1="61.10091113361707" y1="61.10091113361706" x2="122.20182226723412" y2="61.10091113361706" class="simplified" />
+    <circle cx="61.10091113361707" cy="61.10091113361706" r="3" class="simplified-point" />
+    <circle cx="122.20182226723412" cy="61.10091113361706" r="3" class="simplified-point" />
+  </g>
+
+  <!-- Paths -->
+  <g id="paths" transform="translate(466.6054668017024, 20)">
+    <text x="91.6513667004256" y="-5" class="title" text-anchor="middle">Paths (1 path(s))</text>
+    <line x1="61.10091113361707" y1="61.10091113361706" x2="122.20182226723412" y2="61.10091113361706" stroke="#FF6B6B" stroke-width="2" />
+    <circle cx="61.10091113361707" cy="61.10091113361706" r="3" class="path-point" />
+    <circle cx="122.20182226723412" cy="61.10091113361706" r="3" class="path-point" />
+  </g>
+</svg>

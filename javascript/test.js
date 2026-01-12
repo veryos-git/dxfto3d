@@ -1,5 +1,28 @@
 import DxfParser from "npm:dxf-parser";
 
+
+let a_o_line = [
+  {
+    type: 'line',
+    p1: {x:0, y:0},
+    p2: {x:10, y:10}
+  }, 
+  {
+    type: 'line',
+    p1: {x:10, y:10},
+    p2: {x:20, y:20}
+  },
+  {
+    type: 'line', //this line is parrallel but not collinear
+    p1: {x:0, y:1},
+    p2: {x:10, y:11}
+  }, 
+  {
+    type: 'line', // this line is not parrallel and not collinear
+    p1: {x:0, y:0},
+    p2: {x:10, y:5}
+  }
+]
 // Read the DXF file
 const dxfContent = await Deno.readTextFile("./test.dxf");
 

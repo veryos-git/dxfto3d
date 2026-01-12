@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="410.2246382619318" height="121.50077902864325" viewBox="0 0 410.2246382619318 121.50077902864325">
+  <style>
+    .original { stroke: blue; stroke-width: 1; }
+    .simplified { stroke: red; stroke-width: 2; }
+    .original-point { fill: darkblue; }
+    .simplified-point { fill: darkred; }
+    .path-point { fill: black; }
+    .title { font-family: Arial, sans-serif; font-size: 14px; fill: black; }
+  </style>
+
+  <!-- Original Lines -->
+  <g id="original" transform="translate(20, 20)">
+    <text x="41.70410637698863" y="-5" class="title" text-anchor="middle">Original (11 lines)</text>
+    <line x1="54.847292602062225" y1="19.156436668708924" x2="83.40821275397727" y2="16.51634918312596" class="original" />
+    <line x1="21.594616584479812" y1="0" x2="54.847292602062225" y2="8.67461226880551" class="original" />
+    <line x1="58.51151085145493" y1="58.796579433518204" x2="59.40748716611682" y2="68.489405190546" class="original" />
+    <line x1="56.27052639845926" y1="34.553224479104884" x2="58.51151085145493" y2="58.796579433518204" class="original" />
+    <line x1="54.847292602062225" y1="19.156436668708924" x2="56.83522671461105" y2="40.66224955022335" class="original" />
+    <line x1="9.154346771538261" y1="20.743758417665966" x2="26.225338031722725" y2="43.57897898179977" class="original" />
+    <line x1="0" y1="8.49833432585001" x2="18.308693543076522" y2="32.98918250948192" class="original" />
+    <line x1="26.22533803172272" y1="43.57897898179977" x2="41.6835641753051" y2="64.25686453272641" class="original" />
+    <line x1="35.87476456130043" y1="56.48665257625807" x2="41.6835641753051" y2="64.25686453272641" class="original" />
+    <line x1="47.71364866686223" y1="72.32308091620206" x2="54.57464673894448" y2="81.50077902864325" class="original" />
+    <line x1="47.71364866686223" y1="72.32308091620206" x2="54.57464673894448" y2="81.50077902864325" class="original" />
+    <circle cx="54.847292602062225" cy="19.156436668708924" r="2" class="original-point" />
+    <circle cx="83.40821275397727" cy="16.51634918312596" r="2" class="original-point" />
+    <circle cx="21.594616584479812" cy="0" r="2" class="original-point" />
+    <circle cx="54.847292602062225" cy="8.67461226880551" r="2" class="original-point" />
+    <circle cx="58.51151085145493" cy="58.796579433518204" r="2" class="original-point" />
+    <circle cx="59.40748716611682" cy="68.489405190546" r="2" class="original-point" />
+    <circle cx="56.27052639845926" cy="34.553224479104884" r="2" class="original-point" />
+    <circle cx="56.83522671461105" cy="40.66224955022335" r="2" class="original-point" />
+    <circle cx="9.154346771538261" cy="20.743758417665966" r="2" class="original-point" />
+    <circle cx="26.225338031722725" cy="43.57897898179977" r="2" class="original-point" />
+    <circle cx="0" cy="8.49833432585001" r="2" class="original-point" />
+    <circle cx="18.308693543076522" cy="32.98918250948192" r="2" class="original-point" />
+    <circle cx="26.22533803172272" cy="43.57897898179977" r="2" class="original-point" />
+    <circle cx="41.6835641753051" cy="64.25686453272641" r="2" class="original-point" />
+    <circle cx="35.87476456130043" cy="56.48665257625807" r="2" class="original-point" />
+    <circle cx="47.71364866686223" cy="72.32308091620206" r="2" class="original-point" />
+    <circle cx="54.57464673894448" cy="81.50077902864325" r="2" class="original-point" />
+  </g>
+
+  <!-- Simplified Lines -->
+  <g id="simplified" transform="translate(143.40821275397727, 20)">
+    <text x="41.70410637698863" y="-5" class="title" text-anchor="middle">Simplified (5 lines)</text>
+    <line x1="54.847292602062225" y1="19.156436668708924" x2="83.40821275397727" y2="16.51634918312596" class="simplified" />
+    <line x1="21.594616584479812" y1="0" x2="54.847292602062225" y2="8.67461226880551" class="simplified" />
+    <line x1="59.40748716611682" y1="68.489405190546" x2="54.847292602062225" y2="19.156436668708924" class="simplified" />
+    <line x1="0" y1="8.49833432585001" x2="41.6835641753051" y2="64.25686453272641" class="simplified" />
+    <line x1="47.71364866686223" y1="72.32308091620206" x2="54.57464673894448" y2="81.50077902864325" class="simplified" />
+    <circle cx="54.847292602062225" cy="19.156436668708924" r="3" class="simplified-point" />
+    <circle cx="83.40821275397727" cy="16.51634918312596" r="3" class="simplified-point" />
+    <circle cx="21.594616584479812" cy="0" r="3" class="simplified-point" />
+    <circle cx="54.847292602062225" cy="8.67461226880551" r="3" class="simplified-point" />
+    <circle cx="59.40748716611682" cy="68.489405190546" r="3" class="simplified-point" />
+    <circle cx="0" cy="8.49833432585001" r="3" class="simplified-point" />
+    <circle cx="41.6835641753051" cy="64.25686453272641" r="3" class="simplified-point" />
+    <circle cx="47.71364866686223" cy="72.32308091620206" r="3" class="simplified-point" />
+    <circle cx="54.57464673894448" cy="81.50077902864325" r="3" class="simplified-point" />
+  </g>
+
+  <!-- Paths -->
+  <g id="paths" transform="translate(266.81642550795453, 20)">
+    <text x="41.70410637698863" y="-5" class="title" text-anchor="middle">Paths (4 path(s))</text>
+    <line x1="54.847292602062225" y1="19.156436668708924" x2="83.40821275397727" y2="16.51634918312596" stroke="#FF6B6B" stroke-width="2" />
+    <line x1="59.40748716611682" y1="68.489405190546" x2="54.847292602062225" y2="19.156436668708924" stroke="#FF6B6B" stroke-width="2" />
+    <line x1="21.594616584479812" y1="0" x2="54.847292602062225" y2="8.67461226880551" stroke="#4ECDC4" stroke-width="2" />
+    <line x1="0" y1="8.49833432585001" x2="41.6835641753051" y2="64.25686453272641" stroke="#45B7D1" stroke-width="2" />
+    <line x1="47.71364866686223" y1="72.32308091620206" x2="54.57464673894448" y2="81.50077902864325" stroke="#FFA07A" stroke-width="2" />
+    <circle cx="54.847292602062225" cy="19.156436668708924" r="3" class="path-point" />
+    <circle cx="83.40821275397727" cy="16.51634918312596" r="3" class="path-point" />
+    <circle cx="59.40748716611682" cy="68.489405190546" r="3" class="path-point" />
+    <circle cx="21.594616584479812" cy="0" r="3" class="path-point" />
+    <circle cx="54.847292602062225" cy="8.67461226880551" r="3" class="path-point" />
+    <circle cx="0" cy="8.49833432585001" r="3" class="path-point" />
+    <circle cx="41.6835641753051" cy="64.25686453272641" r="3" class="path-point" />
+    <circle cx="47.71364866686223" cy="72.32308091620206" r="3" class="path-point" />
+    <circle cx="54.57464673894448" cy="81.50077902864325" r="3" class="path-point" />
+  </g>
+</svg>
