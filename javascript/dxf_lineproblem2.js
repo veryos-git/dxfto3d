@@ -716,7 +716,7 @@ module part_with_groove(profile_width, profile_chamfer){
             color("blue")
             final_part(profile_width, profile_chamfer);
 
-            rotate([0,180, 0])
+            mirror([0,0, 1])
             translate([0, 0, -1.5*wgroove])
             color("red")
             final_part(wgroove, cgroove);
