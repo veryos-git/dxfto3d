@@ -12,9 +12,10 @@ const dxfContent = await Deno.readTextFile(s_argument);
 const parser = new DxfParser();
 const dxf = parser.parseSync(dxfContent);
 
-// Filter LINE and ARC entities
+// Filter LINE, ARC, and CIRCLE entities
 const lines = dxf.entities.filter(e => e.type === "LINE");
 const arcs = dxf.entities.filter(e => e.type === "ARC");
+const circles = dxf.entities.filter(e => e.type === "CIRCLE");
 
 let a_o_line = lines.map(line => {
   return {
@@ -25,17 +26,33 @@ let a_o_line = lines.map(line => {
 });
 
 let a_o_arc = arcs.map(arc => {
+  let startAngle = arc.startAngle;
+  let endAngle = arc.endAngle;
+
+  // Ensure startAngle is always smaller than endAngle
+  if (startAngle > endAngle) {
+    endAngle += 2 * Math.PI;
+  }
+
   return {
     type: 'arc',
     center: {x: arc.center.x, y: arc.center.y},
     radius: arc.radius,
-    startAngle: arc.startAngle,  // Keep in radians for SVG rendering
-    endAngle: arc.endAngle       // Keep in radians for SVG rendering
+    startAngle: startAngle,  // Keep in radians for SVG rendering
+    endAngle: endAngle       // Keep in radians for SVG rendering
   }
 });
 
-// Combine lines and arcs into a single entity list
-let a_o_entity = [...a_o_line, ...a_o_arc];
+let a_o_circle = circles.map(circle => {
+  return {
+    type: 'circle',
+    center: {x: circle.center.x, y: circle.center.y},
+    radius: circle.radius
+  }
+});
+
+// Combine lines, arcs, and circles into a single entity list
+let a_o_entity = [...a_o_line, ...a_o_arc, ...a_o_circle];
 
 function simplifyLines(lines) {
   if (lines.length === 0) return [];
@@ -169,6 +186,7 @@ function simplifyLines(lines) {
 let simplified = simplifyLines(a_o_line);
 console.log("Simplified lines:", simplified);
 console.log("Arcs:", a_o_arc);
+console.log("Circles:", a_o_circle);
 
 // Group lines into paths based on shared endpoints
 function groupLinesIntoPaths(lines) {
@@ -224,8 +242,8 @@ function groupLinesIntoPaths(lines) {
 }
 
 // Generate SVG visualization
-function generateSVG(originalLines, simplifiedLines, paths, arcs) {
-  // Calculate bounds for all line sets and arcs
+function generateSVG(originalLines, simplifiedLines, paths, arcs, circles) {
+  // Calculate bounds for all line sets, arcs, and circles
   let allPoints = [];
 
   originalLines.forEach(line => {
@@ -242,6 +260,14 @@ function generateSVG(originalLines, simplifiedLines, paths, arcs) {
     allPoints.push(
       {x: arc.center.x - arc.radius, y: arc.center.y - arc.radius},
       {x: arc.center.x + arc.radius, y: arc.center.y + arc.radius}
+    );
+  });
+
+  // Add circle bounding points
+  circles.forEach(circle => {
+    allPoints.push(
+      {x: circle.center.x - circle.radius, y: circle.center.y - circle.radius},
+      {x: circle.center.x + circle.radius, y: circle.center.y + circle.radius}
     );
   });
 
@@ -309,6 +335,14 @@ function generateSVG(originalLines, simplifiedLines, paths, arcs) {
     let largeArc = (endAngle - startAngle) > Math.PI ? 1 : 0;
 
     svg += `    <path d="M ${startX} ${startY} A ${r} ${r} 0 ${largeArc} 1 ${endX} ${endY}" class="original" fill="none" />\n`;
+  });
+
+  // Draw original circles
+  circles.forEach(circle => {
+    let cx = circle.center.x - minX;
+    let cy = circle.center.y - minY;
+    let r = circle.radius;
+    svg += `    <circle cx="${cx}" cy="${cy}" r="${r}" class="original" fill="none" />\n`;
   });
 
   // Draw original points
@@ -403,7 +437,7 @@ paths.forEach((path, index) => {
 });
 
 // Generate and save SVG
-let svgContent = generateSVG(a_o_line, simplified, paths, a_o_arc);
+let svgContent = generateSVG(a_o_line, simplified, paths, a_o_arc, a_o_circle);
 let outputPath = s_argument.replace(/\.dxf$/i, '_comparison.svg');
 await Deno.writeTextFile(outputPath, svgContent);
 console.log(`\nSVG visualization saved to: ${outputPath}`);
@@ -550,6 +584,14 @@ ${a_o_arc.map((arc, arc_idx) => {
 arc${arc_idx}_point2 = [${endX.toFixed(6)}, ${endY.toFixed(6)}, 0];`;
 }).join('\n')}
 
+// ===== CIRCLE DEFINITIONS =====
+${a_o_circle.map((circle, circle_idx) => {
+  return `circle${circle_idx} = [
+    [${circle.center.x.toFixed(6)}, ${circle.center.y.toFixed(6)}, 0],  // center
+    ${circle.radius.toFixed(6)}  // radius
+];`;
+}).join('\n')}
+
 // ===== ARC HELPER FUNCTIONS =====
 
 // Convert arc definition to a path using BOSL2's arc() function
@@ -575,6 +617,31 @@ module sweep_arc(profile, arc_def, n_segments=50) {
     )
     translate(center)
     path_sweep(profile, arc(n=n_segments, r=radius, angle=[start_angle, end_angle]));
+}
+
+// ===== CIRCLE HELPER FUNCTIONS =====
+
+// Convert circle definition to a 3D path using BOSL2's circle() function
+function circle_to_path(circle_def, n_segments=50) =
+    let(
+        center = circle_def[0],
+        radius = circle_def[1],
+        // Generate 2D circle and convert to 3D path
+        circle_path_3d = path3d(circle(r=radius, $fn=n_segments))
+    )
+    // Translate circle path to center position
+    [for (p = circle_path_3d) [p.x + center[0], p.y + center[1], p.z + center[2]]];
+
+// Sweep a circle with a profile
+module sweep_circle(profile, circle_def, n_segments=50) {
+    let(
+        center = circle_def[0],
+        radius = circle_def[1],
+        // Create 3D circular path
+        circle_path = path3d(circle(r=radius, $fn=n_segments))
+    )
+    translate(center)
+    path_sweep(profile, circle_path,closed=true);
 }
 
 // ===== PROFILE SHAPE FUNCTIONS =====
@@ -647,7 +714,7 @@ ${a_o_arc.map((arc, arc_idx) => {
 
 // ===== SWEEP PATTERN =====
 
-// Sweep pattern - sweeps profile along each path (lines and arcs)
+// Sweep pattern - sweeps profile along each path (lines, arcs, and circles)
 module sweep_pattern(profile) {
     union() {
         // Sweep lines
@@ -660,6 +727,11 @@ ${paths.map((o_path, path_idx) => {
         // Sweep arcs
 ${a_o_arc.map((arc, arc_idx) => {
   return `        sweep_arc(profile, arc${arc_idx});`;
+}).join('\n        ')}
+
+        // Sweep circles
+${a_o_circle.map((circle, circle_idx) => {
+  return `        sweep_circle(profile, circle${circle_idx});`;
 }).join('\n        ')}
     }
 }
@@ -679,23 +751,51 @@ ${paths.map((o_path, path_idx) => {
 ${a_o_arc.map((arc, arc_idx) => {
   return `        stroke(arc_to_path(arc${arc_idx}, 30), width=stroke_width, closed=false, endcaps="round");`;
 }).join('\n        ')}
+
+        // Stroke circles (convert to paths first)
+${a_o_circle.map((circle, circle_idx) => {
+  return `        stroke(circle_to_path(circle${circle_idx}, 30), width=stroke_width, closed=true);`;
+}).join('\n        ')}
     }
 }
 
 // ===== MAIN PART =====
 
-// Final part combining swept paths and revolved joints
-module final_part(width=3, chamfer=0.8, joint_offset=0) {
+// Final part with custom profile for sweeps
+module final_part_with_profile(sweep_profile, joint_profile) {
     union() {
-        // Sweep the paths with the pyramid profile
-        sweep_pattern(pyramid_profile_3_1_chamf_points(width, chamfer));
+        // Sweep the paths with the given profile
+        sweep_pattern(sweep_profile);
 
         // Place revolved joints at all connection points
-        place_joints_at_points(width, chamfer);
+        revolved_profile_at_points(joint_profile);
 
         // Place revolved joints at arc endpoints
-        place_joints_at_arc_points(width, chamfer);
+        revolved_profile_at_arc_points(joint_profile);
     }
+}
+
+// Helper: Place revolved profiles at points with custom profile
+module revolved_profile_at_points(joint_profile) {
+${Array.from(allPoints.values()).map(data => {
+  return `    translate(point${data.index}) revolved_profile(joint_profile);`;
+}).join('\n')}
+}
+
+// Helper: Place revolved profiles at arc endpoints with custom profile
+module revolved_profile_at_arc_points(joint_profile) {
+${a_o_arc.map((arc, arc_idx) => {
+  return `    translate(arc${arc_idx}_point1) revolved_profile(joint_profile);
+    translate(arc${arc_idx}_point2) revolved_profile(joint_profile);`;
+}).join('\n')}
+}
+
+// Final part combining swept paths and revolved joints (original signature)
+module final_part(width=3, chamfer=0.8, joint_offset=0) {
+    final_part_with_profile(
+        pyramid_profile_3_1_chamf_points(width, chamfer),
+        pyramid_profile_half(width, chamfer)
+    );
 }
 
 // Simple part module for backwards compatibility
@@ -703,68 +803,158 @@ module part(profile_width, profile_chamfer) {
     final_part(width=profile_width, chamfer=profile_chamfer);
 }
 
-// Render the final part
+// Part with groove - now accepts two separate profiles
+// profile1: sweep profile for main part
+// profile2: sweep profile for groove (subtracted part)
+module part_with_groove(profile1, profile2) {
+    let(
+        // Extract joint profile from sweep profile (half profile for rotation)
+        joint_profile1 = profile1,
+        joint_profile2 = profile2
+    ) {
+        difference() {
+            color("blue")
+            final_part_with_profile(profile1, joint_profile1);
 
-module part_with_groove(profile_width, profile_chamfer){
+            mirror([0, 0, 1])
+            translate([0, 0, -1.5])
+            color("red")
+            final_part_with_profile(profile2, joint_profile2);
+        }
+    }
+}
 
+// Convenience wrapper: part_with_groove using width/chamfer parameters
+module part_with_groove_wc(profile_width, profile_chamfer) {
     let(
         wgroove = profile_width / 2,
         cgroove = profile_chamfer
-    ){
-        difference(){
+    ) {
+        part_with_groove(
+            pyramid_profile_3_1_chamf_points(profile_width, profile_chamfer),
+            pyramid_profile_3_1_chamf_points(wgroove, cgroove)
+        );
+    }
+}
 
-            color("blue")
-            final_part(profile_width, profile_chamfer);
-
-            mirror([0,0, 1])
-            translate([0, 0, -1.5*wgroove])
-            color("red")
-            final_part(wgroove, cgroove);
-
-
-
+// Grid of parts with grooves using two profiles
+module part_with_groove_grid(profile1, profile2, xitems, yitems, xdist, ydist) {
+    for (x=[0:xitems-1]) {
+        for (y=[0:yitems-1]) {
+            translate([x*xdist, y*ydist, 0])
+            part_with_groove(profile1, profile2);
         }
     }
-
-
 }
-// part_with_groove(5, 0.6);
-module part_with_groove_grid(w,c,xitems, yitems, xdist, ydist){
-    difference(){
-            union(){
 
-                for (x=[0:xitems-1]){
-                    for (y=[0:yitems-1]){
-                        translate([x*xdist, y*ydist,0])
-                        color("blue")
-                        final_part(w, c);
+// Grid wrapper using width/chamfer parameters
+module part_with_groove_grid_wc(w, c, xitems, yitems, xdist, ydist) {
+    difference() {
+        union() {
+            for (x=[0:xitems-1]) {
+                for (y=[0:yitems-1]) {
+                    translate([x*xdist, y*ydist, 0])
+                    color("blue")
+                    final_part(w, c);
+                }
+            }
+        }
+        union() {
+            let(
+                wgroove = w / 2,
+                cgroove = c
+            ) {
+                for (x=[0:xitems-1]) {
+                    for (y=[0:yitems-1]) {
+                        translate([x*xdist, y*ydist, 0])
+                        rotate([0, 180, 0])
+                        translate([0, 0, -1.5*wgroove])
+                        color("red")
+                        final_part(wgroove, cgroove);
                     }
                 }
             }
-            union(){
-                let(
-                    wgroove = w / 2,
-                    cgroove = c
-                ){
-                    
-                  for (x=[0:xitems-1]){
-                      for (y=[0:yitems-1]){
-                          translate([x*xdist, y*ydist,0])
-                          rotate([0,180, 0])
-                          translate([0, 0, -1.5*wgroove])
-                          color("red")
-                          final_part(wgroove, cgroove);
-                      }   
-                  }
-                }
-            }
+        }
     }
 }
 
-part_with_groove_grid(6, 0.6, 4, 4, 50,50);
+// ===== TEST PART =====
 
+// Test part with groove using a simple line for quick parameter testing
+// profile1: sweep profile for main part
+// profile2: sweep profile for groove (subtracted part)
+// z_offset: Z translation offset for the groove part (default: -1.5)
+// test_length: length of the test line (default: 50)
+module testpart_with_groove(profile1, profile2, z_offset=-1.5, test_length=50) {
+    test_line = [[0, 0, 0], [test_length, 0, 0]];
 
-// part_with_groove(5, 0.6);
+    difference() {
+        // Main part
+        color("blue")
+        union() {
+            path_sweep(profile1, test_line);
+            translate([0, 0, 0]) revolved_profile(profile1);
+            translate([test_length, 0, 0]) revolved_profile(profile1);
+        }
+
+        // Groove (subtracted part)
+        mirror([0, 0, 1])
+        translate([0, 0, z_offset])
+        color("red")
+        union() {
+            path_sweep(profile2, test_line);
+            translate([0, 0, 0]) revolved_profile(profile2);
+            translate([test_length, 0, 0]) revolved_profile(profile2);
+        }
+    }
+}
+
+// Convenience wrapper for testpart_with_groove using width/chamfer
+module testpart_with_groove_wc(profile_width, profile_chamfer, z_offset=-1.5, test_length=50) {
+    let(
+        wgroove = profile_width / 2,
+        cgroove = profile_chamfer
+    ) {
+        testpart_with_groove(
+            pyramid_profile_3_1_chamf_points(profile_width, profile_chamfer),
+            pyramid_profile_3_1_chamf_points(wgroove, cgroove),
+            z_offset,
+            test_length
+        );
+    }
+}
+
+// ===== USAGE EXAMPLES =====
+
+// Example 1: Using profiles directly
+// part_with_groove(
+//     pyramid_profile_3_1_chamf_points(5, 0.6),
+//     pyramid_profile_3_1_chamf_points(2.5, 0.6)
+// );
+
+// Example 2: Using convenience wrapper with width/chamfer
+// part_with_groove_wc(5, 0.6);
+
+// Example 3: Grid with custom profiles
+// part_with_groove_grid(
+//     pyramid_profile_3_1_chamf_points(6, 0.6),
+//     pyramid_profile_3_1_chamf_points(3, 0.6),
+//     4, 4, 50, 50
+// );
+
+// Example 4: Grid with width/chamfer parameters
+// part_with_groove_grid_wc(6, 0.6, 4, 4, 50, 50);
+
+// Example 5: Test part with custom profiles and z-offset
+// testpart_with_groove(
+//     pyramid_profile_3_1_chamf_points(5, 0.6),
+//     pyramid_profile_3_1_chamf_points(2.5, 0.6),
+//     -1.5,  // z_offset
+//     50     // test line length
+// );
+
+// Example 6: Test part with width/chamfer (quick testing)
+// testpart_with_groove_wc(5, 0.6, -1.5, 50);
 
 `;
 
