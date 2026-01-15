@@ -573,6 +573,8 @@ ${a_o_arc.map((arc, arc_idx) => {
 }).join('\n')}
 
 // ===== ARC ENDPOINT DEFINITIONS =====
+// Each arc endpoint includes position and the angle (in degrees) pointing toward the arc center
+// This angle is used to rotate joints so they align perpendicular to the arc tangent
 ${a_o_arc.map((arc, arc_idx) => {
   // Calculate start and end points of the arc
   let startX = arc.center.x + arc.radius * Math.cos(arc.startAngle);
@@ -580,8 +582,20 @@ ${a_o_arc.map((arc, arc_idx) => {
   let endX = arc.center.x + arc.radius * Math.cos(arc.endAngle);
   let endY = arc.center.y + arc.radius * Math.sin(arc.endAngle);
 
+  // The angle toward the center is 180 degrees offset from the position angle
+  // For point1 (at startAngle): direction to center is startAngle + 180
+  // For point2 (at endAngle): direction to center is endAngle + 180
+  let startAngleDeg = arc.startAngle * 180 / Math.PI;
+  let endAngleDeg = arc.endAngle * 180 / Math.PI;
+
+  // Angle pointing toward center (add 180 to get opposite direction)
+  let angle1ToCenter = startAngleDeg + 180;
+  let angle2ToCenter = endAngleDeg + 180;
+
   return `arc${arc_idx}_point1 = [${startX.toFixed(6)}, ${startY.toFixed(6)}, 0];
-arc${arc_idx}_point2 = [${endX.toFixed(6)}, ${endY.toFixed(6)}, 0];`;
+arc${arc_idx}_point1_angle = ${angle1ToCenter.toFixed(6)};  // angle pointing toward arc center
+arc${arc_idx}_point2 = [${endX.toFixed(6)}, ${endY.toFixed(6)}, 0];
+arc${arc_idx}_point2_angle = ${angle2ToCenter.toFixed(6)};  // angle pointing toward arc center`;
 }).join('\n')}
 
 // ===== CIRCLE DEFINITIONS =====
@@ -690,9 +704,48 @@ function pyramid_profile_half(width=3, chamfer_factor=0.8) =
         [0, 2*unit]
     ];
 
+// Half trapezoid profile - only the right/positive X side for rotation
+// Parameters: wb = bottom width, h = height, wt = top width
+function halftrapez_profile_half(wb=2, h=1, wt=1) =
+    [
+        // Only right side (positive X)
+        [0, 0],
+        [wb, 0],
+        [wt, h],
+        [0, h]
+    ];
+
+// Full trapezoid profile (symmetric)
+// Parameters: wb = bottom width, h = height, wt = top width
+function halftrapez_profile(wb=2, h=1, wt=1) =
+    [
+        [0, 0],
+        [wb, 0],
+        [wt, h],
+        [0, h],
+        [-wt, h],
+        [-wb, 0]
+    ];
+
+// ===== COLOR DEFINITIONS =====
+color_red_translucent = [1,0,0,0.7];
+color_blue_translucent = [0,0,1,0.7];
+
 // Revolve a 2D profile around Z axis to create a 3D solid of revolution
 module revolved_profile(profile) {
     rotate_extrude(angle=360, convexity=10) {
+        polygon(profile);
+    }
+}
+
+// Revolve full profile 90 degrees around X axis
+// This creates a quarter-torus-like shape from the full profile
+// The profile is in the XY plane, revolved around the X axis
+module revolved_profile_90_around_x(profile, angle=90) {
+    rotate([90, 0, 0])  // Rotate so the extrusion happens around X
+    rotate_extrude(angle=angle, convexity=10) {
+        // Shift profile so it's in positive X for rotate_extrude
+        // We need to find the min X and shift accordingly
         polygon(profile);
     }
 }
@@ -762,16 +815,25 @@ ${a_o_circle.map((circle, circle_idx) => {
 // ===== MAIN PART =====
 
 // Final part with custom profile for sweeps
-module final_part_with_profile(sweep_profile, joint_profile) {
+// Parameters:
+//   sweep_profile - 2D profile points for sweeping paths
+//   joint_profile - 2D half-profile for joints (for rotate_extrude)
+//   render_joints - boolean to render joints at line endpoints (default: true)
+//   render_arc_joints - boolean to render joints at arc endpoints (default: true)
+module final_part_with_profile(sweep_profile, joint_profile, render_joints=true, render_arc_joints=true) {
     union() {
         // Sweep the paths with the given profile
         sweep_pattern(sweep_profile);
 
-        // Place revolved joints at all connection points
-        revolved_profile_at_points(joint_profile);
+        // Place revolved joints at all connection points (if enabled)
+        if (render_joints) {
+            revolved_profile_at_points(joint_profile);
+        }
 
-        // Place revolved joints at arc endpoints
-        revolved_profile_at_arc_points(joint_profile);
+        // Place revolved joints at arc endpoints (if enabled)
+        if (render_arc_joints) {
+            revolved_profile_at_arc_points(joint_profile);
+        }
     }
 }
 
@@ -790,88 +852,85 @@ ${a_o_arc.map((arc, arc_idx) => {
 }).join('\n')}
 }
 
-// Final part combining swept paths and revolved joints (original signature)
-module final_part(width=3, chamfer=0.8, joint_offset=0) {
-    final_part_with_profile(
-        pyramid_profile_3_1_chamf_points(width, chamfer),
-        pyramid_profile_half(width, chamfer)
-    );
+// Helper: Place 90-degree revolved profiles at arc endpoints, aligned to arc radial direction
+// This creates quarter-torus joints that align perpendicular to the arc tangent
+// Parameters:
+//   full_profile - the FULL 2D profile (both x+ and x- sides) to revolve
+//   revolve_angle - angle to revolve (default 90 degrees)
+module revolved_profile_90_at_arc_points(full_profile, revolve_angle=90) {
+${a_o_arc.map((arc, arc_idx) => {
+  return `    // Arc ${arc_idx} - point 1
+    translate(arc${arc_idx}_point1)
+    rotate([0, 0, arc${arc_idx}_point1_angle])  // Rotate around Z to align with radial direction
+    revolved_profile_90_around_x(full_profile, revolve_angle);
+    // Arc ${arc_idx} - point 2
+    translate(arc${arc_idx}_point2)
+    rotate([0, 0, arc${arc_idx}_point2_angle])  // Rotate around Z to align with radial direction
+    revolved_profile_90_around_x(full_profile, revolve_angle);`;
+}).join('\n')}
 }
 
-// Simple part module for backwards compatibility
-module part(profile_width, profile_chamfer) {
-    final_part(width=profile_width, chamfer=profile_chamfer);
+// Final part - main entry point
+// Parameters:
+//   sweep_profile - 2D profile for sweeping (e.g., pyramid_profile_3_1_chamf_points(5, 0.6))
+//   joint_profile - 2D half-profile for joints (e.g., pyramid_profile_half(5, 0.6))
+//   render_joints - boolean to render joints at line endpoints (default: true)
+//   render_arc_joints - boolean to render joints at arc endpoints (default: true)
+module final_part(sweep_profile, joint_profile, render_joints=true, render_arc_joints=true) {
+    final_part_with_profile(sweep_profile, joint_profile, render_joints, render_arc_joints);
 }
 
-// Part with groove - now accepts two separate profiles
-// profile1: sweep profile for main part
-// profile2: sweep profile for groove (subtracted part)
-module part_with_groove(profile1, profile2) {
-    let(
-        // Extract joint profile from sweep profile (half profile for rotation)
-        joint_profile1 = profile1,
-        joint_profile2 = profile2
-    ) {
-        difference() {
-            color("blue")
-            final_part_with_profile(profile1, joint_profile1);
+// Part with groove
+// Parameters:
+//   sweep_profile1 - sweep profile for main part
+//   joint_profile1 - joint profile for main part
+//   sweep_profile2 - sweep profile for groove (subtracted part)
+//   joint_profile2 - joint profile for groove
+//   z_offset - Z translation offset for the groove part (default: -1.5)
+//   render_joints - boolean to render joints at line endpoints (default: true)
+//   render_arc_joints - boolean to render joints at arc endpoints (default: true)
+module part_with_groove(sweep_profile1, joint_profile1, sweep_profile2, joint_profile2, z_offset=-1.5, render_joints=true, render_arc_joints=true) {
+    difference() {
+        color(color_red_translucent)
+        final_part_with_profile(sweep_profile1, joint_profile1, render_joints, render_arc_joints);
 
-            mirror([0, 0, 1])
-            translate([0, 0, -1.5])
-            color("red")
-            final_part_with_profile(profile2, joint_profile2);
-        }
+        mirror([0, 0, 1])
+        translate([0, 0, z_offset])
+        color(color_blue_translucent)
+        final_part_with_profile(sweep_profile2, joint_profile2, render_joints, render_arc_joints);
     }
 }
 
-// Convenience wrapper: part_with_groove using width/chamfer parameters
-module part_with_groove_wc(profile_width, profile_chamfer) {
-    let(
-        wgroove = profile_width / 2,
-        cgroove = profile_chamfer
-    ) {
-        part_with_groove(
-            pyramid_profile_3_1_chamf_points(profile_width, profile_chamfer),
-            pyramid_profile_3_1_chamf_points(wgroove, cgroove)
-        );
-    }
-}
-
-// Grid of parts with grooves using two profiles
-module part_with_groove_grid(profile1, profile2, xitems, yitems, xdist, ydist) {
-    for (x=[0:xitems-1]) {
-        for (y=[0:yitems-1]) {
-            translate([x*xdist, y*ydist, 0])
-            part_with_groove(profile1, profile2);
-        }
-    }
-}
-
-// Grid wrapper using width/chamfer parameters
-module part_with_groove_grid_wc(w, c, xitems, yitems, xdist, ydist) {
+// Grid of parts with grooves
+// Parameters:
+//   sweep_profile1 - sweep profile for main part
+//   joint_profile1 - joint profile for main part
+//   sweep_profile2 - sweep profile for groove (subtracted part)
+//   joint_profile2 - joint profile for groove
+//   xitems, yitems - grid dimensions
+//   xdist, ydist - spacing between grid items
+//   z_offset - Z translation offset for the groove part (default: -1.5)
+//   render_joints - boolean to render joints at line endpoints (default: true)
+//   render_arc_joints - boolean to render joints at arc endpoints (default: true)
+module part_with_groove_grid(sweep_profile1, joint_profile1, sweep_profile2, joint_profile2, xitems, yitems, xdist, ydist, z_offset=-1.5, render_joints=true, render_arc_joints=true) {
     difference() {
         union() {
             for (x=[0:xitems-1]) {
                 for (y=[0:yitems-1]) {
                     translate([x*xdist, y*ydist, 0])
-                    color("blue")
-                    final_part(w, c);
+                    color(color_blue_translucent)
+                    final_part_with_profile(sweep_profile1, joint_profile1, render_joints, render_arc_joints);
                 }
             }
         }
         union() {
-            let(
-                wgroove = w / 2,
-                cgroove = c
-            ) {
-                for (x=[0:xitems-1]) {
-                    for (y=[0:yitems-1]) {
-                        translate([x*xdist, y*ydist, 0])
-                        rotate([0, 180, 0])
-                        translate([0, 0, -1.5*wgroove])
-                        color("red")
-                        final_part(wgroove, cgroove);
-                    }
+            for (x=[0:xitems-1]) {
+                for (y=[0:yitems-1]) {
+                    translate([x*xdist, y*ydist, 0])
+                    mirror([0, 0, 1])
+                    translate([0, 0, z_offset])
+                    color(color_red_translucent)
+                    final_part_with_profile(sweep_profile2, joint_profile2, render_joints, render_arc_joints);
                 }
             }
         }
@@ -881,80 +940,82 @@ module part_with_groove_grid_wc(w, c, xitems, yitems, xdist, ydist) {
 // ===== TEST PART =====
 
 // Test part with groove using a simple line for quick parameter testing
-// profile1: sweep profile for main part
-// profile2: sweep profile for groove (subtracted part)
-// z_offset: Z translation offset for the groove part (default: -1.5)
-// test_length: length of the test line (default: 50)
-module testpart_with_groove(profile1, profile2, z_offset=-1.5, test_length=50) {
+// Parameters:
+//   sweep_profile1 - sweep profile for main part
+//   sweep_profile2 - sweep profile for groove (subtracted part)
+//   z_offset - Z translation offset for the groove part (default: -1.5)
+//   test_length - length of the test line (default: 50)
+module testpart_with_groove(sweep_profile1, sweep_profile2, z_offset=-1.5, test_length=50) {
     test_line = [[0, 0, 0], [test_length, 0, 0]];
 
-    difference() {
-        // Main part
-        color("blue")
-        union() {
-            path_sweep(profile1, test_line);
-            translate([0, 0, 0]) revolved_profile(profile1);
-            translate([test_length, 0, 0]) revolved_profile(profile1);
-        }
-
+    union() {
         // Groove (subtracted part)
         mirror([0, 0, 1])
         translate([0, 0, z_offset])
-        color("red")
+        color([1,0,0,0.8])
         union() {
-            path_sweep(profile2, test_line);
-            translate([0, 0, 0]) revolved_profile(profile2);
-            translate([test_length, 0, 0]) revolved_profile(profile2);
+            path_sweep(sweep_profile2, test_line);
         }
-    }
-}
-
-// Convenience wrapper for testpart_with_groove using width/chamfer
-module testpart_with_groove_wc(profile_width, profile_chamfer, z_offset=-1.5, test_length=50) {
-    let(
-        wgroove = profile_width / 2,
-        cgroove = profile_chamfer
-    ) {
-        testpart_with_groove(
-            pyramid_profile_3_1_chamf_points(profile_width, profile_chamfer),
-            pyramid_profile_3_1_chamf_points(wgroove, cgroove),
-            z_offset,
-            test_length
-        );
+        // Main part
+        color([0,0,1,0.4])
+        union() {
+            path_sweep(sweep_profile1, test_line);
+        }
     }
 }
 
 // ===== USAGE EXAMPLES =====
 
-// Example 1: Using profiles directly
+// Example: Test part with groove
+w_summand = 5;
+cf_summand = 0.5;
+wb_remover = 0.5;
+h_remover = 3;
+wt_remover = 0.1;
+z_offset_test = -5;
+testpart_with_groove(
+    pyramid_profile_3_1_chamf_points(w_summand, cf_summand),   // main sweep
+    halftrapez_profile(wb=wb_remover,h=h_remover,wt=wt_remover), // groove sweep
+    z_offset_test,   // z_offset
+    50      // test_length
+);
+
+// Example 1: Final part with all joints
+// final_part(
+//     pyramid_profile_3_1_chamf_points(w_summand, cf_summand),   // main sweep
+//     pyramid_profile_half(w_summand, cf_summand),               // main joint
+//     true,   // render_joints
+//     true    // render_arc_joints
+// );
+
+// Example 2: Final part without joints
+// final_part(
+//     pyramid_profile_3_1_chamf_points(w_summand, cf_summand),   // main sweep
+//     pyramid_profile_half(w_summand, cf_summand),               // main joint
+//     false,  // no line joints
+//     false   // no arc joints
+// );
+
+// Example 3: Part with groove
 // part_with_groove(
-//     pyramid_profile_3_1_chamf_points(5, 0.6),
-//     pyramid_profile_3_1_chamf_points(2.5, 0.6)
+//     pyramid_profile_3_1_chamf_points(w_summand, cf_summand),   // main sweep
+//     pyramid_profile_half(w_summand, cf_summand),               // main joint
+//     halftrapez_profile(wb=wb_remover,h=h_remover,wt=wt_remover), // groove sweep
+//     halftrapez_profile_half(wb=wb_remover,h=h_remover,wt=wt_remover), // groove joint
+//     z_offset_test,    // z_offset, 
+//     render_joints=false, render_arc_joints=false
 // );
 
-// Example 2: Using convenience wrapper with width/chamfer
-// part_with_groove_wc(5, 0.6);
 
-// Example 3: Grid with custom profiles
+// Example 4: Grid of parts with groove
 // part_with_groove_grid(
-//     pyramid_profile_3_1_chamf_points(6, 0.6),
-//     pyramid_profile_3_1_chamf_points(3, 0.6),
-//     4, 4, 50, 50
+//     pyramid_profile_3_1_chamf_points(w_summand, cf_summand),   // main sweep
+//     pyramid_profile_half(w_summand, cf_summand),               // main joint
+//     halftrapez_profile(wb=wb_remover,h=h_remover,wt=wt_remover), // groove sweep
+//     halftrapez_profile_half(wb=wb_remover,h=h_remover,wt=wt_remover), // groove joint
+//     4, 4,   // xitems, yitems
+//     50, 50  // xdist, ydist
 // );
-
-// Example 4: Grid with width/chamfer parameters
-// part_with_groove_grid_wc(6, 0.6, 4, 4, 50, 50);
-
-// Example 5: Test part with custom profiles and z-offset
-// testpart_with_groove(
-//     pyramid_profile_3_1_chamf_points(5, 0.6),
-//     pyramid_profile_3_1_chamf_points(2.5, 0.6),
-//     -1.5,  // z_offset
-//     50     // test line length
-// );
-
-// Example 6: Test part with width/chamfer (quick testing)
-// testpart_with_groove_wc(5, 0.6, -1.5, 50);
 
 `;
 

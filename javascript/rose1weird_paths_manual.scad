@@ -912,6 +912,9 @@ arc111_point2 = [-33.719018, -20.231411, 0];
 
 // ===== CIRCLE DEFINITIONS =====
 
+// colors 
+color_red_translucent = [1,0,0,0.7]
+color_blue_translucent = [0,0,1,0.7]
 
 // ===== ARC HELPER FUNCTIONS =====
 
@@ -968,10 +971,10 @@ module sweep_circle(profile, circle_def, n_segments=50) {
 // ===== PROFILE SHAPE FUNCTIONS =====
 
 // Chamfered pyramid profile (good for 3D printing on vertical surfaces)
-function pyramid_profile_3_1_chamf_points(width=3, chamfer_factor=0.8) =
+function pyramid_profile_3_1_chamf_points(w=3, cf=0.8) =
     let(
-        unit = width/3,
-        cnr = 1 - chamfer_factor
+        unit = w/3,
+        cnr = 1 - cf
     )
     [
         // Right side
@@ -994,10 +997,10 @@ function pyramid_profile_3_1_chamf_points(width=3, chamfer_factor=0.8) =
 
 // Half profile - only the right/positive X side for rotation
 // This is used for rotate_extrude which requires all X coords to be >= 0
-function pyramid_profile_half(width=3, chamfer_factor=0.8) =
+function pyramid_profile_half(w=3, cf=0.8) =
     let(
-        unit = width/3,
-        cnr = 1 - chamfer_factor
+        unit = w/3,
+        cnr = 1 - cf
     )
     [
         // Only right side (positive X)
@@ -1033,10 +1036,6 @@ function halftrapez_profile(wb=2, h=1, wt=1) =
         [-wt, h],
         [-wb, 0]
     ];
-
-// ===== COLOR DEFINITIONS =====
-color_red_translucent = [1,0,0,0.7];
-color_blue_translucent = [0,0,1,0.7];
 
 // Revolve a 2D profile around Z axis to create a 3D solid of revolution
 module revolved_profile(profile) {
@@ -1861,7 +1860,9 @@ module part_with_groove_grid(sweep_profile1, joint_profile1, sweep_profile2, joi
 // Test part with groove using a simple line for quick parameter testing
 // Parameters:
 //   sweep_profile1 - sweep profile for main part
+//   joint_profile1 - joint profile for main part
 //   sweep_profile2 - sweep profile for groove (subtracted part)
+//   joint_profile2 - joint profile for groove
 //   z_offset - Z translation offset for the groove part (default: -1.5)
 //   test_length - length of the test line (default: 50)
 module testpart_with_groove(sweep_profile1, sweep_profile2, z_offset=-1.5, test_length=50) {
@@ -1880,16 +1881,18 @@ module testpart_with_groove(sweep_profile1, sweep_profile2, z_offset=-1.5, test_
         union() {
             path_sweep(sweep_profile1, test_line);
         }
+
+
     }
 }
 
 // ===== USAGE EXAMPLES =====
 
 // Example: Test part with groove
-w_summand = 5;
+w_summand = 5; 
 cf_summand = 0.6;
-wb_remover = 1;
-h_remover = 3;
+wb_remover = 1; 
+h_remover = 3; 
 wt_remover = 0.4;
 testpart_with_groove(
     pyramid_profile_3_1_chamf_points(w_summand, cf_summand),   // main sweep
@@ -1898,37 +1901,40 @@ testpart_with_groove(
     50      // test_length
 );
 
+
+
+
 // Example 1: Final part with all joints
 // final_part(
-//     pyramid_profile_3_1_chamf_points(w_summand, cf_summand),   // main sweep
-//     pyramid_profile_half(w_summand, cf_summand),               // main joint
+    // pyramid_profile_3_1_chamf_points(w_summand, cf_summand),   // main sweep
+    //     pyramid_profile_half(w_summand, cf_summand),   // main sweep
 //     true,   // render_joints
 //     true    // render_arc_joints
 // );
 
 // Example 2: Final part without joints
 // final_part(
-//     pyramid_profile_3_1_chamf_points(w_summand, cf_summand),   // main sweep
-//     pyramid_profile_half(w_summand, cf_summand),               // main joint
+    // pyramid_profile_3_1_chamf_points(w_summand, cf_summand),   // main sweep
+    //     pyramid_profile_half(w_summand, cf_summand),   // main sweep
 //     false,  // no line joints
 //     false   // no arc joints
 // );
 
 // Example 3: Part with groove
 // part_with_groove(
-//     pyramid_profile_3_1_chamf_points(w_summand, cf_summand),   // main sweep
-//     pyramid_profile_half(w_summand, cf_summand),               // main joint
-//     halftrapez_profile(wb=wb_remover,h=h_remover,wt=wt_remover), // groove sweep
-//     halftrapez_profile_half(wb=wb_remover,h=h_remover,wt=wt_remover), // groove joint
+    // pyramid_profile_3_1_chamf_points(w_summand, cf_summand),   // main sweep
+    //     pyramid_profile_half(w_summand, cf_summand),   // main sweep
+    // halftrapez_profile(wb=wb_remover,h=h_remover,wt=wt_remover), // groove sweep
+    // halftrapez_profile_half(wb=wb_remover,h=h_remover,wt=wt_remover), // groove sweep
 //     -1.5    // z_offset
 // );
 
 // Example 4: Grid of parts with groove
 // part_with_groove_grid(
-//     pyramid_profile_3_1_chamf_points(w_summand, cf_summand),   // main sweep
-//     pyramid_profile_half(w_summand, cf_summand),               // main joint
-//     halftrapez_profile(wb=wb_remover,h=h_remover,wt=wt_remover), // groove sweep
-//     halftrapez_profile_half(wb=wb_remover,h=h_remover,wt=wt_remover), // groove joint
+    // pyramid_profile_3_1_chamf_points(w_summand, cf_summand),   // main sweep
+    //     pyramid_profile_half(w_summand, cf_summand),   // main sweep
+    // halftrapez_profile(wb=wb_remover,h=h_remover,wt=wt_remover), // groove sweep
+    // halftrapez_profile_half(wb=wb_remover,h=h_remover,wt=wt_remover), // groove sweep
 //     4, 4,   // xitems, yitems
 //     50, 50  // xdist, ydist
 // );
