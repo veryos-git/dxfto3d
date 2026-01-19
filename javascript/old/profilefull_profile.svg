@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="440" height="202.64159377003787" viewBox="0 0 440 202.64159377003787">
+  <style>
+    .profile-path { fill: rgba(100, 150, 255, 0.3); stroke: blue; stroke-width: 1.5; }
+    .center-mark { fill: none; stroke: green; stroke-width: 1; }
+    .axis { stroke: #ccc; stroke-width: 0.5; stroke-dasharray: 4,4; }
+  </style>
+
+  <!-- Axis lines through center -->
+  <line x1="0" y1="101.32" x2="440" y2="101.32" class="axis" />
+  <line x1="220.00" y1="0" x2="220.00" y2="202.64159377003787" class="axis" />
+
+  <!-- Profile path -->
+  <path d="M 299.05 80.38 L 251.21 80.38 L 251.13 76.93 L 250.87 73.49 L 250.45 70.06 L 249.86 66.66 L 249.11 63.29 L 248.19 59.96 L 247.11 56.68 L 245.87 53.46 L 244.47 50.30 L 242.92 47.22 L 241.22 44.21 L 239.38 41.29 L 237.39 38.47 L 235.27 35.74 L 233.02 33.13 L 230.64 30.62 L 228.15 28.24 L 225.54 25.98 L 222.82 23.85 L 220.00 21.86 L 217.18 23.85 L 214.46 25.98 L 211.85 28.24 L 209.36 30.62 L 206.98 33.13 L 204.73 35.74 L 202.61 38.47 L 200.62 41.29 L 198.78 44.21 L 197.08 47.22 L 195.53 50.30 L 194.13 53.46 L 192.89 56.68 L 191.81 59.96 L 190.89 63.29 L 190.14 66.66 L 189.55 70.06 L 189.13 73.49 L 188.87 76.93 L 188.79 80.38 L 80.38 140.95 L 66.24 139.27 L 52.88 134.34 L 41.04 126.43 L 31.38 115.98 L 24.42 103.56 L 20.56 89.85 L 20.00 75.63 L 22.78 61.66 L 28.74 48.73 L 37.55 37.55 L 48.73 28.74 L 61.66 22.78 L 75.63 20.00 L 89.85 20.56 L 103.56 24.42 L 115.98 31.38 L 126.43 41.04 L 134.34 52.88 L 139.27 66.24 L 80.38 140.95 L 80.38 182.64 L 220.00 182.64 L 359.62 182.64 L 299.05 80.38 L 300.73 66.24 L 305.66 52.88 L 313.57 41.04 L 324.02 31.38 L 336.44 24.42 L 350.15 20.56 L 364.37 20.00 L 378.34 22.78 L 391.27 28.74 L 402.45 37.55 L 411.26 48.73 L 417.22 61.66 L 420.00 75.63 L 419.44 89.85 L 415.58 103.56 L 408.62 115.98 L 398.96 126.43 L 387.12 134.34 L 373.76 139.27 Z" class="profile-path" />
+
+  <!-- Point markers with indices -->
+  <circle cx="299.05" cy="80.38" r="3" fill="red" />
+    <text x="304.05" y="75.38" font-size="8" fill="gray">0</text>
+    <circle cx="251.21" cy="80.38" r="3" fill="red" />
+    <text x="256.21" y="75.38" font-size="8" fill="gray">1</text>
+    <circle cx="251.13" cy="76.93" r="3" fill="red" />
+    <text x="256.13" y="71.93" font-size="8" fill="gray">2</text>
+    <circle cx="250.87" cy="73.49" r="3" fill="red" />
+    <text x="255.87" y="68.49" font-size="8" fill="gray">3</text>
+    <circle cx="250.45" cy="70.06" r="3" fill="red" />
+    <text x="255.45" y="65.06" font-size="8" fill="gray">4</text>
+    <circle cx="249.86" cy="66.66" r="3" fill="red" />
+    <text x="254.86" y="61.66" font-size="8" fill="gray">5</text>
+    <circle cx="249.11" cy="63.29" r="3" fill="red" />
+    <text x="254.11" y="58.29" font-size="8" fill="gray">6</text>
+    <circle cx="248.19" cy="59.96" r="3" fill="red" />
+    <text x="253.19" y="54.96" font-size="8" fill="gray">7</text>
+    <circle cx="247.11" cy="56.68" r="3" fill="red" />
+    <text x="252.11" y="51.68" font-size="8" fill="gray">8</text>
+    <circle cx="245.87" cy="53.46" r="3" fill="red" />
+    <text x="250.87" y="48.46" font-size="8" fill="gray">9</text>
+    <circle cx="244.47" cy="50.30" r="3" fill="red" />
+    <text x="249.47" y="45.30" font-size="8" fill="gray">10</text>
+    <circle cx="242.92" cy="47.22" r="3" fill="red" />
+    <text x="247.92" y="42.22" font-size="8" fill="gray">11</text>
+    <circle cx="241.22" cy="44.21" r="3" fill="red" />
+    <text x="246.22" y="39.21" font-size="8" fill="gray">12</text>
+    <circle cx="239.38" cy="41.29" r="3" fill="red" />
+    <text x="244.38" y="36.29" font-size="8" fill="gray">13</text>
+    <circle cx="237.39" cy="38.47" r="3" fill="red" />
+    <text x="242.39" y="33.47" font-size="8" fill="gray">14</text>
+    <circle cx="235.27" cy="35.74" r="3" fill="red" />
+    <text x="240.27" y="30.74" font-size="8" fill="gray">15</text>
+    <circle cx="233.02" cy="33.13" r="3" fill="red" />
+    <text x="238.02" y="28.13" font-size="8" fill="gray">16</text>
+    <circle cx="230.64" cy="30.62" r="3" fill="red" />
+    <text x="235.64" y="25.62" font-size="8" fill="gray">17</text>
+    <circle cx="228.15" cy="28.24" r="3" fill="red" />
+    <text x="233.15" y="23.24" font-size="8" fill="gray">18</text>
+    <circle cx="225.54" cy="25.98" r="3" fill="red" />
+    <text x="230.54" y="20.98" font-size="8" fill="gray">19</text>
+    <circle cx="222.82" cy="23.85" r="3" fill="red" />
+    <text x="227.82" y="18.85" font-size="8" fill="gray">20</text>
+    <circle cx="220.00" cy="21.86" r="3" fill="red" />
+    <text x="225.00" y="16.86" font-size="8" fill="gray">21</text>
+    <circle cx="217.18" cy="23.85" r="3" fill="red" />
+    <text x="222.18" y="18.85" font-size="8" fill="gray">22</text>
+    <circle cx="214.46" cy="25.98" r="3" fill="red" />
+    <text x="219.46" y="20.98" font-size="8" fill="gray">23</text>
+    <circle cx="211.85" cy="28.24" r="3" fill="red" />
+    <text x="216.85" y="23.24" font-size="8" fill="gray">24</text>
+    <circle cx="209.36" cy="30.62" r="3" fill="red" />
+    <text x="214.36" y="25.62" font-size="8" fill="gray">25</text>
+    <circle cx="206.98" cy="33.13" r="3" fill="red" />
+    <text x="211.98" y="28.13" font-size="8" fill="gray">26</text>
+    <circle cx="204.73" cy="35.74" r="3" fill="red" />
+    <text x="209.73" y="30.74" font-size="8" fill="gray">27</text>
+    <circle cx="202.61" cy="38.47" r="3" fill="red" />
+    <text x="207.61" y="33.47" font-size="8" fill="gray">28</text>
+    <circle cx="200.62" cy="41.29" r="3" fill="red" />
+    <text x="205.62" y="36.29" font-size="8" fill="gray">29</text>
+    <circle cx="198.78" cy="44.21" r="3" fill="red" />
+    <text x="203.78" y="39.21" font-size="8" fill="gray">30</text>
+    <circle cx="197.08" cy="47.22" r="3" fill="red" />
+    <text x="202.08" y="42.22" font-size="8" fill="gray">31</text>
+    <circle cx="195.53" cy="50.30" r="3" fill="red" />
+    <text x="200.53" y="45.30" font-size="8" fill="gray">32</text>
+    <circle cx="194.13" cy="53.46" r="3" fill="red" />
+    <text x="199.13" y="48.46" font-size="8" fill="gray">33</text>
+    <circle cx="192.89" cy="56.68" r="3" fill="red" />
+    <text x="197.89" y="51.68" font-size="8" fill="gray">34</text>
+    <circle cx="191.81" cy="59.96" r="3" fill="red" />
+    <text x="196.81" y="54.96" font-size="8" fill="gray">35</text>
+    <circle cx="190.89" cy="63.29" r="3" fill="red" />
+    <text x="195.89" y="58.29" font-size="8" fill="gray">36</text>
+    <circle cx="190.14" cy="66.66" r="3" fill="red" />
+    <text x="195.14" y="61.66" font-size="8" fill="gray">37</text>
+    <circle cx="189.55" cy="70.06" r="3" fill="red" />
+    <text x="194.55" y="65.06" font-size="8" fill="gray">38</text>
+    <circle cx="189.13" cy="73.49" r="3" fill="red" />
+    <text x="194.13" y="68.49" font-size="8" fill="gray">39</text>
+    <circle cx="188.87" cy="76.93" r="3" fill="red" />
+    <text x="193.87" y="71.93" font-size="8" fill="gray">40</text>
+    <circle cx="188.79" cy="80.38" r="3" fill="red" />
+    <text x="193.79" y="75.38" font-size="8" fill="gray">41</text>
+    <circle cx="80.38" cy="140.95" r="3" fill="red" />
+    <text x="85.38" y="135.95" font-size="8" fill="gray">42</text>
+    <circle cx="66.24" cy="139.27" r="3" fill="red" />
+    <text x="71.24" y="134.27" font-size="8" fill="gray">43</text>
+    <circle cx="52.88" cy="134.34" r="3" fill="red" />
+    <text x="57.88" y="129.34" font-size="8" fill="gray">44</text>
+    <circle cx="41.04" cy="126.43" r="3" fill="red" />
+    <text x="46.04" y="121.43" font-size="8" fill="gray">45</text>
+    <circle cx="31.38" cy="115.98" r="3" fill="red" />
+    <text x="36.38" y="110.98" font-size="8" fill="gray">46</text>
+    <circle cx="24.42" cy="103.56" r="3" fill="red" />
+    <text x="29.42" y="98.56" font-size="8" fill="gray">47</text>
+    <circle cx="20.56" cy="89.85" r="3" fill="red" />
+    <text x="25.56" y="84.85" font-size="8" fill="gray">48</text>
+    <circle cx="20.00" cy="75.63" r="3" fill="red" />
+    <text x="25.00" y="70.63" font-size="8" fill="gray">49</text>
+    <circle cx="22.78" cy="61.66" r="3" fill="red" />
+    <text x="27.78" y="56.66" font-size="8" fill="gray">50</text>
+    <circle cx="28.74" cy="48.73" r="3" fill="red" />
+    <text x="33.74" y="43.73" font-size="8" fill="gray">51</text>
+    <circle cx="37.55" cy="37.55" r="3" fill="red" />
+    <text x="42.55" y="32.55" font-size="8" fill="gray">52</text>
+    <circle cx="48.73" cy="28.74" r="3" fill="red" />
+    <text x="53.73" y="23.74" font-size="8" fill="gray">53</text>
+    <circle cx="61.66" cy="22.78" r="3" fill="red" />
+    <text x="66.66" y="17.78" font-size="8" fill="gray">54</text>
+    <circle cx="75.63" cy="20.00" r="3" fill="red" />
+    <text x="80.63" y="15.00" font-size="8" fill="gray">55</text>
+    <circle cx="89.85" cy="20.56" r="3" fill="red" />
+    <text x="94.85" y="15.56" font-size="8" fill="gray">56</text>
+    <circle cx="103.56" cy="24.42" r="3" fill="red" />
+    <text x="108.56" y="19.42" font-size="8" fill="gray">57</text>
+    <circle cx="115.98" cy="31.38" r="3" fill="red" />
+    <text x="120.98" y="26.38" font-size="8" fill="gray">58</text>
+    <circle cx="126.43" cy="41.04" r="3" fill="red" />
+    <text x="131.43" y="36.04" font-size="8" fill="gray">59</text>
+    <circle cx="134.34" cy="52.88" r="3" fill="red" />
+    <text x="139.34" y="47.88" font-size="8" fill="gray">60</text>
+    <circle cx="139.27" cy="66.24" r="3" fill="red" />
+    <text x="144.27" y="61.24" font-size="8" fill="gray">61</text>
+    <circle cx="80.38" cy="140.95" r="3" fill="red" />
+    <text x="85.38" y="135.95" font-size="8" fill="gray">62</text>
+    <circle cx="80.38" cy="182.64" r="3" fill="red" />
+    <text x="85.38" y="177.64" font-size="8" fill="gray">63</text>
+    <circle cx="220.00" cy="182.64" r="3" fill="red" />
+    <text x="225.00" y="177.64" font-size="8" fill="gray">64</text>
+    <circle cx="359.62" cy="182.64" r="3" fill="red" />
+    <text x="364.62" y="177.64" font-size="8" fill="gray">65</text>
+    <circle cx="299.05" cy="80.38" r="3" fill="red" />
+    <text x="304.05" y="75.38" font-size="8" fill="gray">66</text>
+    <circle cx="300.73" cy="66.24" r="3" fill="red" />
+    <text x="305.73" y="61.24" font-size="8" fill="gray">67</text>
+    <circle cx="305.66" cy="52.88" r="3" fill="red" />
+    <text x="310.66" y="47.88" font-size="8" fill="gray">68</text>
+    <circle cx="313.57" cy="41.04" r="3" fill="red" />
+    <text x="318.57" y="36.04" font-size="8" fill="gray">69</text>
+    <circle cx="324.02" cy="31.38" r="3" fill="red" />
+    <text x="329.02" y="26.38" font-size="8" fill="gray">70</text>
+    <circle cx="336.44" cy="24.42" r="3" fill="red" />
+    <text x="341.44" y="19.42" font-size="8" fill="gray">71</text>
+    <circle cx="350.15" cy="20.56" r="3" fill="red" />
+    <text x="355.15" y="15.56" font-size="8" fill="gray">72</text>
+    <circle cx="364.37" cy="20.00" r="3" fill="red" />
+    <text x="369.37" y="15.00" font-size="8" fill="gray">73</text>
+    <circle cx="378.34" cy="22.78" r="3" fill="red" />
+    <text x="383.34" y="17.78" font-size="8" fill="gray">74</text>
+    <circle cx="391.27" cy="28.74" r="3" fill="red" />
+    <text x="396.27" y="23.74" font-size="8" fill="gray">75</text>
+    <circle cx="402.45" cy="37.55" r="3" fill="red" />
+    <text x="407.45" y="32.55" font-size="8" fill="gray">76</text>
+    <circle cx="411.26" cy="48.73" r="3" fill="red" />
+    <text x="416.26" y="43.73" font-size="8" fill="gray">77</text>
+    <circle cx="417.22" cy="61.66" r="3" fill="red" />
+    <text x="422.22" y="56.66" font-size="8" fill="gray">78</text>
+    <circle cx="420.00" cy="75.63" r="3" fill="red" />
+    <text x="425.00" y="70.63" font-size="8" fill="gray">79</text>
+    <circle cx="419.44" cy="89.85" r="3" fill="red" />
+    <text x="424.44" y="84.85" font-size="8" fill="gray">80</text>
+    <circle cx="415.58" cy="103.56" r="3" fill="red" />
+    <text x="420.58" y="98.56" font-size="8" fill="gray">81</text>
+    <circle cx="408.62" cy="115.98" r="3" fill="red" />
+    <text x="413.62" y="110.98" font-size="8" fill="gray">82</text>
+    <circle cx="398.96" cy="126.43" r="3" fill="red" />
+    <text x="403.96" y="121.43" font-size="8" fill="gray">83</text>
+    <circle cx="387.12" cy="134.34" r="3" fill="red" />
+    <text x="392.12" y="129.34" font-size="8" fill="gray">84</text>
+    <circle cx="373.76" cy="139.27" r="3" fill="red" />
+    <text x="378.76" y="134.27" font-size="8" fill="gray">85</text>
+
+  <!-- Center marker -->
+  <circle cx="220.00" cy="101.32" r="5" class="center-mark" />
+  <line x1="212.00" y1="101.32" x2="228.00" y2="101.32" class="center-mark" />
+  <line x1="220.00" y1="93.32" x2="220.00" y2="109.32" class="center-mark" />
+
+  <!-- Legend -->
+  <text x="10" y="15" font-size="10" fill="black">Profile: 86 points</text>
+  <text x="10" y="27" font-size="10" fill="black">Bounds: [31.33, 0.00] to [43.50, 4.95]</text>
+</svg>

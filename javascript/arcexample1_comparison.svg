@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="628.8712173375956" height="144.19360385279901" viewBox="0 0 628.8712173375956 144.19360385279901">
+  <style>
+    .original { stroke: blue; stroke-width: 1; }
+    .simplified { stroke: red; stroke-width: 2; }
+    .original-point { fill: darkblue; }
+    .simplified-point { fill: darkred; }
+    .path-point { fill: black; }
+    .title { font-family: Arial, sans-serif; font-size: 14px; fill: black; }
+  </style>
+
+  <!-- Original Lines -->
+  <g id="original" transform="translate(20, 20)">
+    <text x="78.14520288959926" y="-5" class="title" text-anchor="middle">Original (0 lines)</text>
+    <path d="M 104.19360385279901 52.09680192639951 A 26.04840096319975 26.04840096319975 0 0 1 52.09680192639951 52.09680192639951" class="original" fill="none" />
+    <path d="M 104.19360385279901 52.09680192639951 A 52.09680192639951 52.09680192639951 0 0 1 78.14520288959926 97.21395585058755" class="original" fill="none" />
+    <path d="M 78.14520288959928 97.21395585058757 A 52.09680192639951 52.09680192639951 0 0 1 52.09680192639951 52.096801926399515" class="original" fill="none" />
+  </g>
+
+  <!-- Simplified Lines -->
+  <g id="simplified" transform="translate(216.29040577919852, 20)">
+    <text x="78.14520288959926" y="-5" class="title" text-anchor="middle">Simplified (0 lines)</text>
+  </g>
+
+  <!-- Paths -->
+  <g id="paths" transform="translate(412.58081155839704, 20)">
+    <text x="78.14520288959926" y="-5" class="title" text-anchor="middle">Paths (0 path(s))</text>
+  </g>
+</svg>
