@@ -427,34 +427,10 @@
                 "n_z": 0
             },
             "b_tangent": false,
-            "n_ang_rad_between_entities": 1.97619437441246
+            "n_ang_rad_between_entities": 1.1653982791773334
         },
         {
             "o_entity_a": {
-                "s_type": "LINE",
-                "o_vec3_trn_start": {
-                    "n_x": 23.39783869683743,
-                    "n_y": 8.054470643401146,
-                    "n_z": 0
-                },
-                "o_vec3_trn_end": {
-                    "n_x": 23.39783869683743,
-                    "n_y": 0,
-                    "n_z": 0
-                },
-                "n_thickness": 0,
-                "o_vec3_extrusion_normal": {
-                    "n_x": 0,
-                    "n_y": 0,
-                    "n_z": 1
-                },
-                "o_vec3_direction": {
-                    "n_x": 0,
-                    "n_y": -1,
-                    "n_z": 0
-                }
-            },
-            "o_entity_b": {
                 "s_type": "LINE",
                 "o_vec3_trn_start": {
                     "n_x": 23.39783869683743,
@@ -475,6 +451,30 @@
                 "o_vec3_direction": {
                     "n_x": -1,
                     "n_y": 0,
+                    "n_z": 0
+                }
+            },
+            "o_entity_b": {
+                "s_type": "LINE",
+                "o_vec3_trn_start": {
+                    "n_x": 23.39783869683743,
+                    "n_y": 8.054470643401146,
+                    "n_z": 0
+                },
+                "o_vec3_trn_end": {
+                    "n_x": 23.39783869683743,
+                    "n_y": 0,
+                    "n_z": 0
+                },
+                "n_thickness": 0,
+                "o_vec3_extrusion_normal": {
+                    "n_x": 0,
+                    "n_y": 0,
+                    "n_z": 1
+                },
+                "o_vec3_direction": {
+                    "n_x": 0,
+                    "n_y": -1,
                     "n_z": 0
                 }
             },
@@ -545,34 +545,10 @@
                 "n_z": 0
             },
             "b_tangent": false,
-            "n_ang_rad_between_entities": 1.5707963267948963
+            "n_ang_rad_between_entities": 1.5707963267948968
         },
         {
             "o_entity_a": {
-                "s_type": "LINE",
-                "o_vec3_trn_start": {
-                    "n_x": 6.638188380748034,
-                    "n_y": 17.67994463443756,
-                    "n_z": 0
-                },
-                "o_vec3_trn_end": {
-                    "n_x": 13.77236470580101,
-                    "n_y": 17.67994463443756,
-                    "n_z": 0
-                },
-                "n_thickness": 0,
-                "o_vec3_extrusion_normal": {
-                    "n_x": 0,
-                    "n_y": 0,
-                    "n_z": 1
-                },
-                "o_vec3_direction": {
-                    "n_x": 1,
-                    "n_y": 0,
-                    "n_z": 0
-                }
-            },
-            "o_entity_b": {
                 "s_type": "ARC",
                 "o_vec3_trn": {
                     "n_x": 23.39783869683743,
@@ -600,16 +576,7 @@
                     "n_z": 1
                 }
             },
-            "o_trn_vec3_connected": {
-                "n_x": 13.77236470580101,
-                "n_y": 17.67994463443756,
-                "n_z": 0
-            },
-            "b_tangent": false,
-            "n_ang_rad_between_entities": 1.5707963267948966
-        },
-        {
-            "o_entity_a": {
+            "o_entity_b": {
                 "s_type": "LINE",
                 "o_vec3_trn_start": {
                     "n_x": 6.638188380748034,
@@ -633,7 +600,16 @@
                     "n_z": 0
                 }
             },
-            "o_entity_b": {
+            "o_trn_vec3_connected": {
+                "n_x": 13.772364705801014,
+                "n_y": 17.67994463443756,
+                "n_z": 0
+            },
+            "b_tangent": false,
+            "n_ang_rad_between_entities": 1.5707963267948966
+        },
+        {
+            "o_entity_a": {
                 "s_type": "ARC",
                 "o_vec3_trn": {
                     "n_x": -4.322873894125223,
@@ -661,8 +637,32 @@
                     "n_z": 1
                 }
             },
+            "o_entity_b": {
+                "s_type": "LINE",
+                "o_vec3_trn_start": {
+                    "n_x": 6.638188380748034,
+                    "n_y": 17.67994463443756,
+                    "n_z": 0
+                },
+                "o_vec3_trn_end": {
+                    "n_x": 13.77236470580101,
+                    "n_y": 17.67994463443756,
+                    "n_z": 0
+                },
+                "n_thickness": 0,
+                "o_vec3_extrusion_normal": {
+                    "n_x": 0,
+                    "n_y": 0,
+                    "n_z": 1
+                },
+                "o_vec3_direction": {
+                    "n_x": 1,
+                    "n_y": 0,
+                    "n_z": 0
+                }
+            },
             "o_trn_vec3_connected": {
-                "n_x": 6.638188380748034,
+                "n_x": 6.638188380748037,
                 "n_y": 17.67994463443756,
                 "n_z": 0
             },

@@ -44,56 +44,68 @@ let s_path_dxf_profile = Deno.args[1];
 if(!s_path_dxf_profile){
     console.error('No DXF file specified as second argument.');
 }
-let s_scad = f_s_scad_var_declation_sketch_entities(o_sketch.a_o_entity);
+// let s_scad = f_s_scad_var_declation_sketch_entities(o_sketch.a_o_entity);
+// await Deno.writeTextFile(
+//     `${o_pathinfo.s_filnnoext}${s_ds}${o_pathinfo.s_folder}${s_ds}${o_pathinfo.s_filnnoext}_sketch_scad_entities.scad`,
+//     s_scad
+// );
+
+
+
+let o_pathinfo_profile = f_o_pathinfo(s_path_dxf_profile);
+await ensureDir(o_pathinfo_profile.s_filnnoext);
+
+if(!await f_b_filorfol_exists(s_path_dxf_profile, { isFile: true })){
+    console.error(`File not found, filename: ${s_path_dxf_profile}`);
+    Deno.exit(1);
+}
+
+
+let o_sketch_profile = await f_o_sketch_from_s_path_dxf(s_path_dxf_profile);
+let s_scad_profile = f_s_scad_profile_functions_from_o_sketch(o_sketch_profile, o_pathinfo_profile.s_filnnoext);
 await Deno.writeTextFile(
-    `${o_pathinfo.s_filnnoext}${s_ds}${o_pathinfo.s_folder}${s_ds}${o_pathinfo.s_filnnoext}_sketch_scad_entities.scad`,
-    s_scad
+    `${o_pathinfo_profile.s_filnnoext}${s_ds}${o_pathinfo_profile.s_folder}${s_ds}${o_pathinfo_profile.s_filnnoext}_sketch_scad_profiles.scad`,
+    s_scad_profile
+);
+
+await Deno.writeTextFile(
+    `${o_pathinfo_profile.s_filnnoext}${s_ds}${o_pathinfo_profile.s_folder}${s_ds}${o_pathinfo_profile.s_filnnoext}_profile.json`,
+    JSON.stringify(o_sketch_profile, null, 4)
+);
+// console.log(o_sketch)
+let s_svg_profile = f_s_svg_from_o_sketch(o_sketch_profile);
+await Deno.writeTextFile(
+    `${o_pathinfo_profile.s_filnnoext}${s_ds}${o_pathinfo_profile.s_folder}${s_ds}${o_pathinfo_profile.s_filnnoext}_profile.svg`,
+    s_svg_profile
 );
 
 
 
-if(s_path_dxf_profile){
-    let o_pathinfo_profile = f_o_pathinfo(s_path_dxf_profile);
-    await ensureDir(o_pathinfo_profile.s_filnnoext);
-
-    if(!await f_b_filorfol_exists(s_path_dxf_profile, { isFile: true })){
-        console.error(`File not found, filename: ${s_path_dxf_profile}`);
-        Deno.exit(1);
-    }
     
-    
-    let o_sketch_profile = await f_o_sketch_from_s_path_dxf(s_path_dxf_profile);
-    let s_scad_profile = f_s_scad_profile_functions_from_o_sketch(o_sketch_profile, o_pathinfo_profile.s_filnnoext);
-    await Deno.writeTextFile(
-        `${o_pathinfo_profile.s_filnnoext}${s_ds}${o_pathinfo_profile.s_folder}${s_ds}${o_pathinfo_profile.s_filnnoext}_sketch_scad_profiles.scad`,
-        s_scad_profile
-    );
 
-    await Deno.writeTextFile(
-        `${o_pathinfo_profile.s_filnnoext}${s_ds}${o_pathinfo_profile.s_folder}${s_ds}${o_pathinfo_profile.s_filnnoext}_profile.json`,
-        JSON.stringify(o_sketch_profile, null, 4)
-    );
-    // console.log(o_sketch)
-    let s_svg_profile = f_s_svg_from_o_sketch(o_sketch_profile);
-    await Deno.writeTextFile(
-        `${o_pathinfo_profile.s_filnnoext}${s_ds}${o_pathinfo_profile.s_folder}${s_ds}${o_pathinfo_profile.s_filnnoext}_profile.svg`,
-        s_svg_profile
-    );
+let s_path_dxf_profile_remover = Deno.args[2];
+
+if(!s_path_dxf_profile_remover){
+    console.error('No DXF file specified as third argument.');
+}
+
+
+let o_sketch_profile_remover = await f_o_sketch_from_s_path_dxf(s_path_dxf_profile_remover);
+let o_pathinfo_profile_remover = f_o_pathinfo(s_path_dxf_profile_remover);
+
 
     let s_scad_final = f_s_scad_path_sweep_sketch(
         o_sketch, 
+        o_pathinfo.s_filnnoext,
         o_sketch_profile,
         o_pathinfo_profile.s_filnnoext, 
+        o_sketch_profile_remover, 
+        o_pathinfo_profile_remover.s_filnnoext
     );
-    console.log(s_scad_final);
+    // console.log(s_scad_final);
     await Deno.writeTextFile(
         `${o_pathinfo.s_filnnoext}${s_ds}${o_pathinfo.s_folder}${s_ds}${o_pathinfo.s_filnnoext}_sketch_scad_path_sweep.scad`,
         s_scad_final
     );
-
+    console.log('file written:', `${o_pathinfo.s_filnnoext}${s_ds}${o_pathinfo.s_folder}${s_ds}${o_pathinfo.s_filnnoext}_sketch_scad_path_sweep.scad`);
     console.log('Done.');
-
-    
-}
-
-

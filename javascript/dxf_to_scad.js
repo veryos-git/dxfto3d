@@ -8,6 +8,22 @@ if (!s_argument) {
 }
 const dxfContent = await Deno.readTextFile(s_argument);
 
+// Extract filename and create output folder
+let inputFileName = s_argument.split('/').pop();
+let baseName = inputFileName.replace(/\.dxf$/i, '');
+let inputDir = s_argument.substring(0, s_argument.lastIndexOf('/') + 1) || './';
+let outputFolder = inputDir + baseName;
+
+try {
+  await Deno.mkdir(outputFolder, { recursive: true });
+  console.log(`Created output folder: ${outputFolder}`);
+} catch (e) {
+  if (!(e instanceof Deno.errors.AlreadyExists)) {
+    throw e;
+  }
+  console.log(`Output folder already exists: ${outputFolder}`);
+}
+
 // Parse it
 const parser = new DxfParser();
 const dxf = parser.parseSync(dxfContent);
@@ -438,9 +454,9 @@ paths.forEach((path, index) => {
 
 // Generate and save SVG
 let svgContent = generateSVG(a_o_line, simplified, paths, a_o_arc, a_o_circle);
-let outputPath = s_argument.replace(/\.dxf$/i, '_comparison.svg');
-await Deno.writeTextFile(outputPath, svgContent);
-console.log(`\nSVG visualization saved to: ${outputPath}`);
+let svgOutputPath = `${outputFolder}/${baseName}_comparison.svg`;
+await Deno.writeTextFile(svgOutputPath, svgContent);
+console.log(`\nSVG visualization saved to: ${svgOutputPath}`);
 
 // Analyze connectivity of lines in a path
 function analyzePathConnectivity(path) {
@@ -1039,5 +1055,11 @@ testpart_with_groove(
 
 `;
 
-await Deno.writeTextFile(s_argument.replace(/\.dxf$/i, '_paths.scad'), s_openscad);
-console.log(`OpenSCAD file saved to: ${s_argument.replace(/\.dxf$/i, '_paths.scad')}`);
+let scadOutputPath = `${outputFolder}/${baseName}_paths.scad`;
+await Deno.writeTextFile(scadOutputPath, s_openscad);
+console.log(`OpenSCAD file saved to: ${scadOutputPath}`);
+
+// Copy the input DXF file to the output folder
+let dxfDestPath = `${outputFolder}/${inputFileName}`;
+await Deno.copyFile(s_argument, dxfDestPath);
+console.log(`Input DXF copied to: ${dxfDestPath}`);

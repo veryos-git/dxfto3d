@@ -51,11 +51,11 @@ let f_o_vec3_direction_from_o_trnvec3_start_end = function(
 }
 const O_VEC3_Z_UP = f_o_vec3(0, 0, 1);
 
-let f_b_vec3_equal = function(o_vec3_a, o_vec3_b){
+let f_b_vec3_equal = function(o_vec3_a, o_vec3_b, n_tolerance = 0.0001){
     return (
-        o_vec3_a.n_x.toFixed(4) === o_vec3_b.n_x.toFixed(4) &&
-        o_vec3_a.n_y.toFixed(4) === o_vec3_b.n_y.toFixed(4) &&
-        o_vec3_a.n_z.toFixed(4) === o_vec3_b.n_z.toFixed(4)
+        Math.abs(o_vec3_a.n_x - o_vec3_b.n_x) < n_tolerance &&
+        Math.abs(o_vec3_a.n_y - o_vec3_b.n_y) < n_tolerance &&
+        Math.abs(o_vec3_a.n_z - o_vec3_b.n_z) < n_tolerance
     );
 }
 
@@ -78,24 +78,34 @@ let f_o_vec3_direction_at_connection = function(o_ent, o_vec3_conn){
         // arc tangent at a point: perpendicular to radius
         // tangent = (-sin(angle), cos(angle)) for CCW arc
         let n_ang_rad = 0;
-        if(f_b_vec3_equal(o_vec3_conn, o_ent.o_vec3_trn_start)){
+        let b_at_start = f_b_vec3_equal(o_vec3_conn, o_ent.o_vec3_trn_start);
+        if(b_at_start){
             n_ang_rad = o_ent.n_ang_rad_start;
         } else {
             n_ang_rad = o_ent.n_ang_rad_end;
         }
         // tangent direction (CCW): perpendicular to radial direction
-        return f_o_vec3(
-            -Math.sin(n_ang_rad),
-            Math.cos(n_ang_rad),
-            0
-        );
+        let dir_x = -Math.sin(n_ang_rad);
+        let dir_y = Math.cos(n_ang_rad);
+
+        // If at end, negate to get "outward" direction (pointing away from connection along the path)
+        if(!b_at_start){
+            dir_x = -dir_x;
+            dir_y = -dir_y;
+        }
+
+        return f_o_vec3(dir_x, dir_y, 0);
     }
     return f_o_vec3(0, 0, 0);
 }
 
-let f_o_dual_entity_connection = function(
+let f_o_entity_connection = function(
     o_entity_a,
     o_entity_b, 
+    o_vec3_dir_entity_a = null,
+    o_vec3_dir_entity_b = null,
+    n_ang_deg_z_entity_a = null,
+    n_ang_deg_z_entity_b = null,
     o_trn_vec3_connected = null,
     b_tangent = false, 
     n_ang_rad_between_entities = null
@@ -103,6 +113,10 @@ let f_o_dual_entity_connection = function(
     return {
         o_entity_a,
         o_entity_b,
+        o_vec3_dir_entity_a,
+        o_vec3_dir_entity_b,
+        n_ang_deg_z_entity_a,
+        n_ang_deg_z_entity_b,
         o_trn_vec3_connected,
         b_tangent, 
         n_ang_rad_between_entities
@@ -115,22 +129,29 @@ let f_o_arc = function(
     n_ang_deg_end,
     o_vec3_extrusion_normal = O_VEC3_Z_UP
 ){
+    // Ensure start angle is smaller than end angle by adding 360° to end if needed
+    // This preserves arc direction (important for arcs crossing 0°/360° boundary)
+    let n_ang_deg_start_tmp = n_ang_deg_start;
+    let n_ang_deg_end_tmp = n_ang_deg_end;
+    if (n_ang_deg_start_tmp > n_ang_deg_end_tmp) {
+        n_ang_deg_end_tmp += 360;
+    }
     return {
         s_type: "ARC",
         o_vec3_trn,
         n_radius,
-        n_ang_deg_start,
-        n_ang_deg_end,
-        n_ang_rad_start: n_ang_deg_start * Math.PI / 180,
-        n_ang_rad_end: n_ang_deg_end * Math.PI / 180,
+        n_ang_deg_start:n_ang_deg_start_tmp,
+        n_ang_deg_end:n_ang_deg_end_tmp,
+        n_ang_rad_start: n_ang_deg_start_tmp * Math.PI / 180,
+        n_ang_rad_end: n_ang_deg_end_tmp * Math.PI / 180,
         o_vec3_trn_start: f_o_vec3(
-            o_vec3_trn.n_x + n_radius * Math.cos(n_ang_deg_start * Math.PI / 180),
-            o_vec3_trn.n_y + n_radius * Math.sin(n_ang_deg_start * Math.PI / 180),
+            o_vec3_trn.n_x + n_radius * Math.cos(n_ang_deg_start_tmp * Math.PI / 180),
+            o_vec3_trn.n_y + n_radius * Math.sin(n_ang_deg_start_tmp * Math.PI / 180),
             o_vec3_trn.n_z
         ),
         o_vec3_trn_end: f_o_vec3(
-            o_vec3_trn.n_x + n_radius * Math.cos(n_ang_deg_end * Math.PI / 180),
-            o_vec3_trn.n_y + n_radius * Math.sin(n_ang_deg_end * Math.PI / 180),
+            o_vec3_trn.n_x + n_radius * Math.cos(n_ang_deg_end_tmp * Math.PI / 180),
+            o_vec3_trn.n_y + n_radius * Math.sin(n_ang_deg_end_tmp * Math.PI / 180),
             o_vec3_trn.n_z
         ),
         o_vec3_extrusion_normal
@@ -264,14 +285,14 @@ let f_o_sketch = function(
     a_o_line, 
     a_o_arc, 
     a_o_circle, 
-    a_o_dual_entity_connection, 
+    a_o_entity_connection, 
 ){
     return {
         a_o_entity,
         a_o_line,
         a_o_arc,
         a_o_circle, 
-        a_o_dual_entity_connection,
+        a_o_entity_connection,
         a_o_vec3_trn : f_o_vec3_trn_from_a_o_entity(a_o_entity)
     }
 }
@@ -359,7 +380,7 @@ let f_o_sketch_from_s_path_dxf = async function(s_path){
         }
         o_sketch.a_o_entity.push(o_ent2);
     }
-    o_sketch.a_o_dual_entity_connection = f_a_o_dual_entity_connection(o_sketch);
+    o_sketch.a_o_entity_connection = f_a_o_entity_connection(o_sketch);
     o_sketch.a_o_vec3_trn = f_a_o_vec3_trn_ordered_from_o_sketch(o_sketch);
 
     return o_sketch
@@ -447,9 +468,9 @@ let f_s_svg_from_o_sketch = function(o_sketch){
         );
     }
 
-    // draw triangles at dual entity connection points
+    // draw triangles at entity connection points
     let n_triangle_size = Math.max(o_bbox.max_x - o_bbox.min_x, o_bbox.max_y - o_bbox.min_y) * 0.02 || 2;
-    for (const o_dec of o_sketch.a_o_dual_entity_connection) {
+    for (const o_dec of o_sketch.a_o_entity_connection) {
         let cx = o_dec.o_trn_vec3_connected.n_x;
         let cy = -o_dec.o_trn_vec3_connected.n_y; // flip Y for SVG
 
@@ -518,19 +539,12 @@ let f_s_svg_from_o_sketch = function(o_sketch){
     );
 };
 
-let f_a_o_dual_entity_connection = function(o_sketch){
+let f_a_o_entity_connection = function(o_sketch){
 
-    let a_o_dual_entity_connection = [];
+    let a_o_entity_connection = [];
     for(let o_ent of o_sketch.a_o_entity){
         // if it is not an entity with start and end points, skip
         if(!('o_vec3_trn_start' in o_ent)){continue;}
-        let a_o_dual_entity_connection_existing = a_o_dual_entity_connection.filter(o_dec=>{
-            return o_dec.o_entity_a === o_ent || o_dec.o_entity_b === o_ent;
-        });
-        if(a_o_dual_entity_connection_existing.length > 0){
-            // already processed
-            continue;
-        }
         for(let o_ent2 of o_sketch.a_o_entity){
 
             if(o_ent === o_ent2){continue;}
@@ -538,63 +552,54 @@ let f_a_o_dual_entity_connection = function(o_sketch){
             // check if it is an entity with start and end points
             if(!('o_vec3_trn_start' in o_ent2)){continue;}
 
+            // Check if this pair already has a connection recorded (in either order)
+            let b_pair_already_exists = a_o_entity_connection.some(o_dec =>
+                (o_dec.o_entity_a === o_ent && o_dec.o_entity_b === o_ent2) ||
+                (o_dec.o_entity_a === o_ent2 && o_dec.o_entity_b === o_ent)
+            );
+            if(b_pair_already_exists){continue;}
+
             // check if start or end point is same
             let b_connected = false;
             let o_trn_vec3_connected = null;
             let b_tangent = false; 
 
-            // numbers are with many comma decimals, so direct equality check
-            // may fail due to floating point precision issues
+            let n_tolerance = 0.0001;  // or whatever precision you need
 
-            let n_trn_x_start1 = o_ent.o_vec3_trn_start.n_x.toFixed(4);
-            let n_trn_y_start1 = o_ent.o_vec3_trn_start.n_y.toFixed(4);
-            let n_trn_z_start1 = o_ent.o_vec3_trn_start.n_z.toFixed(4);
+            let b_start1_eq_start2 = 
+                Math.abs(o_ent.o_vec3_trn_start.n_x - o_ent2.o_vec3_trn_start.n_x) < n_tolerance &&
+                Math.abs(o_ent.o_vec3_trn_start.n_y - o_ent2.o_vec3_trn_start.n_y) < n_tolerance &&
+                Math.abs(o_ent.o_vec3_trn_start.n_z - o_ent2.o_vec3_trn_start.n_z) < n_tolerance;
 
-            let n_trn_x_end1 = o_ent.o_vec3_trn_end.n_x.toFixed(4);
-            let n_trn_y_end1 = o_ent.o_vec3_trn_end.n_y.toFixed(4);
-            let n_trn_z_end1 = o_ent.o_vec3_trn_end.n_z.toFixed(4);
+            let b_start1_eq_end2 = 
+                Math.abs(o_ent.o_vec3_trn_start.n_x - o_ent2.o_vec3_trn_end.n_x) < n_tolerance &&
+                Math.abs(o_ent.o_vec3_trn_start.n_y - o_ent2.o_vec3_trn_end.n_y) < n_tolerance &&
+                Math.abs(o_ent.o_vec3_trn_start.n_z - o_ent2.o_vec3_trn_end.n_z) < n_tolerance;
 
-            let n_trn_x_start2 = o_ent2.o_vec3_trn_start.n_x.toFixed(4);
-            let n_trn_y_start2 = o_ent2.o_vec3_trn_start.n_y.toFixed(4);
-            let n_trn_z_start2 = o_ent2.o_vec3_trn_start.n_z.toFixed(4);
+            let b_end1_eq_start2 = 
+                Math.abs(o_ent.o_vec3_trn_end.n_x - o_ent2.o_vec3_trn_start.n_x) < n_tolerance &&
+                Math.abs(o_ent.o_vec3_trn_end.n_y - o_ent2.o_vec3_trn_start.n_y) < n_tolerance &&
+                Math.abs(o_ent.o_vec3_trn_end.n_z - o_ent2.o_vec3_trn_start.n_z) < n_tolerance;
 
-            let n_trn_x_end2 = o_ent2.o_vec3_trn_end.n_x.toFixed(4);
-            let n_trn_y_end2 = o_ent2.o_vec3_trn_end.n_y.toFixed(4);
-            let n_trn_z_end2 = o_ent2.o_vec3_trn_end.n_z.toFixed(4);
-            // check if start1 == start2
-            if(
-                n_trn_x_start1 === n_trn_x_start2 &&
-                n_trn_y_start1 === n_trn_y_start2 &&
-                n_trn_z_start1 === n_trn_z_start2
-            ){
+            let b_end1_eq_end2 = 
+                Math.abs(o_ent.o_vec3_trn_end.n_x - o_ent2.o_vec3_trn_end.n_x) < n_tolerance &&
+                Math.abs(o_ent.o_vec3_trn_end.n_y - o_ent2.o_vec3_trn_end.n_y) < n_tolerance &&
+                Math.abs(o_ent.o_vec3_trn_end.n_z - o_ent2.o_vec3_trn_end.n_z) < n_tolerance;
+
+            // Then check connections
+            if(b_start1_eq_start2){
                 b_connected = true;
                 o_trn_vec3_connected = o_ent.o_vec3_trn_start;
             }
-            // check if start1 == end2
-            else if(
-                n_trn_x_start1 === n_trn_x_end2 &&
-                n_trn_y_start1 === n_trn_y_end2 &&
-                n_trn_z_start1 === n_trn_z_end2
-            ){
-
+            else if(b_start1_eq_end2){
                 b_connected = true;
                 o_trn_vec3_connected = o_ent.o_vec3_trn_start;
             }
-            // check if end1 == start2
-            else if(
-                n_trn_x_end1 === n_trn_x_start2 &&
-                n_trn_y_end1 === n_trn_y_start2 &&
-                n_trn_z_end1 === n_trn_z_start2
-            ){
+            else if(b_end1_eq_start2){
                 o_trn_vec3_connected = o_ent.o_vec3_trn_end;
                 b_connected = true;
             }
-            // check if end1 == end2
-            else if(
-                n_trn_x_end1 === n_trn_x_end2 &&
-                n_trn_y_end1 === n_trn_y_end2 &&
-                n_trn_z_end1 === n_trn_z_end2
-            ){
+            else if(b_end1_eq_end2){
                 o_trn_vec3_connected = o_ent.o_vec3_trn_end;
                 b_connected = true;
             }
@@ -615,11 +620,18 @@ let f_a_o_dual_entity_connection = function(o_sketch){
                 if(Math.abs(n_ang_rad_between_entities) < 0.0001 || Math.abs(n_ang_rad_between_entities - Math.PI) < 0.0001){
                     b_tangent = true;
                 }
+                let n_ang_deg_z1 = Math.atan2(o_vec3_dir1.n_y, o_vec3_dir1.n_x) * 180 / Math.PI;
+                let n_ang_deg_z2 = Math.atan2(o_vec3_dir2.n_y, o_vec3_dir2.n_x) * 180 / Math.PI;
 
-                a_o_dual_entity_connection.push(
-                    f_o_dual_entity_connection(
+
+                a_o_entity_connection.push(
+                    f_o_entity_connection(
                         o_ent,
                         o_ent2,
+                        o_vec3_dir1,
+                        o_vec3_dir2,
+                        n_ang_deg_z1,
+                        n_ang_deg_z2,
                         o_trn_vec3_connected,
                         b_tangent,
                         n_ang_rad_between_entities
@@ -630,7 +642,7 @@ let f_a_o_dual_entity_connection = function(o_sketch){
         }
         
     }
-    return a_o_dual_entity_connection;
+    return a_o_entity_connection;
 }
 
 let f_o_vec3_trn_from_o_entity = function(o_ent, points_per_mm = 10){
@@ -767,7 +779,7 @@ let f_a_o_vec3_trn_from_o_entity_directed = function(o_ent, b_reversed, points_p
 
 let f_a_o_vec3_trn_ordered_from_o_sketch = function(o_sketch, points_per_mm = 1){
     let a_o_entity = o_sketch.a_o_entity.filter(e => e && 'o_vec3_trn_start' in e);
-    let a_o_dec = o_sketch.a_o_dual_entity_connection;
+    let a_o_dec = o_sketch.a_o_entity_connection;
 
     if(a_o_entity.length === 0){
         return [];
@@ -957,58 +969,151 @@ let f_s_scad_var_declation_sketch_entities = function(a_o_entity){
     `
     return s_scad;
 }
-let f_s_scad_path_sweep_sketch = function(o_sketch, o_sketch_profile, s_profile_name="profile", n_segments=50){
-    let s_scad_profile_functions = f_s_scad_profile_functions_from_o_sketch(o_sketch_profile, s_profile_name);
-    
-    let s_scad_entity_defs = f_s_scad_var_declation_sketch_entities(o_sketch.a_o_entity);
+let f_s_scad_path_sweep_sketch = function(
+    o_sketch_sweep_paths,
+    s_name_sketch_sweep_paths = "profile_sweep",
+    o_sketch_profile,
+    s_name_sketch_profile = "profile",
+    o_sketch_profile_remover, 
+    s_name_sketch_profile_remover = "profile_remover",
+    n_segments=50
+){
+    let b_run_profile_preview = false;
+    let s_scad_profile_functions = f_s_scad_profile_functions_from_o_sketch(o_sketch_profile, s_name_sketch_profile, b_run_profile_preview);
+    let s_scad_profile_functions_remover = f_s_scad_profile_functions_from_o_sketch(o_sketch_profile_remover, s_name_sketch_profile_remover, b_run_profile_preview);
+    let s_scad_entity_defs = f_s_scad_var_declation_sketch_entities(o_sketch_sweep_paths.a_o_entity);
+
+    // Get tangent connections and calculate rotation angles
+    let a_o_entity_connection__tangent = o_sketch_sweep_paths.a_o_entity_connection.filter(o_dec => o_dec.b_tangent);
+
+    // Deduplicate tangent points by position (within tolerance)
+    let n_dedup_tolerance = 0.001;
+    let a_o_tangent_unique = [];
+    for(let o_dec of a_o_entity_connection__tangent){
+        let b_duplicate = a_o_tangent_unique.some(o_existing =>
+            Math.abs(o_existing.o_trn_vec3_connected.n_x - o_dec.o_trn_vec3_connected.n_x) < n_dedup_tolerance &&
+            Math.abs(o_existing.o_trn_vec3_connected.n_y - o_dec.o_trn_vec3_connected.n_y) < n_dedup_tolerance &&
+            Math.abs(o_existing.o_trn_vec3_connected.n_z - o_dec.o_trn_vec3_connected.n_z) < n_dedup_tolerance
+        );
+        if(!b_duplicate){
+            a_o_tangent_unique.push(o_dec);
+        }
+    }
+    console.log(`Tangent points: ${a_o_entity_connection__tangent.length} total, ${a_o_tangent_unique.length} unique`)
+
 
     let s_scad = `
      include <BOSL2/std.scad>
 
     ${s_scad_entity_defs}
     ${s_scad_profile_functions}
-
+    ${s_scad_profile_functions_remover}
     
+// ===== TANGENT CONNECTION POINTS =====
+// Points where entities connect tangentially, with rotation angle for joint placement
+${a_o_tangent_unique.map((o, idx) =>
+    `${s_name_sketch_sweep_paths}_tangent_point_${idx} = [${o.o_trn_vec3_connected.n_x.toFixed(6)}, ${o.o_trn_vec3_connected.n_y.toFixed(6)}, ${o.o_trn_vec3_connected.n_z.toFixed(6)}];
+${s_name_sketch_sweep_paths}_tangent_point_${idx}_angle = ${o.n_ang_deg_z_entity_a.toFixed(6)};`
+).join('\n')}
+
+// Generic module to revolve any profile around X axis
+// profile_for_revolve: 2D points array (x >= 0 for rotate_extrude)
+// profile_height: height of the profile (for Y translation)
+module revolve_profile_around_x(profile_for_revolve, profile_height, angle=90) {
+    rotate([90, 0, 180])
+    translate([0, -profile_height, 0])
+    rotate_extrude(angle=angle, convexity=10)
+    polygon(profile_for_revolve);
+}
+
+// Module to place revolve joints at all tangent connection points
+module ${s_name_sketch_sweep_paths}_place_revolve_joints_at_tangent_points(profile_for_revolve, profile_height, angle=90) {
+${a_o_tangent_unique.map((o, idx) =>
+    `    translate(${s_name_sketch_sweep_paths}_tangent_point_${idx})
+    rotate([0, 0, ${s_name_sketch_sweep_paths}_tangent_point_${idx}_angle])
+    revolve_profile_around_x(profile_for_revolve, profile_height, angle);`
+).join('\n')}
+}
+
 // Sweep pattern - sweeps profile along each path (lines, arcs, and circles)
-module sweep_pattern(profile) {
+module ${s_name_sketch_sweep_paths}_sweep_pattern(profile) {
     union() {
         // Sweep lines
-        ${o_sketch.a_o_line.map((o_line, n_idx)=>{
-            return `
-        path_sweep(profile, line_${n_idx});
-            `;
+        ${o_sketch_sweep_paths.a_o_line.map((o_line, n_idx)=>{
+            return `path_sweep(profile, path2d(line_${n_idx}));`;
         }).join('\n')}
 
         // Sweep arcs
-        ${o_sketch.a_o_arc.map((o_arc, n_idx)=>{
-            return `
-
-            sweep_arc(profile, arc_${n_idx}, n_segments=${n_segments});
-            `;
+        ${o_sketch_sweep_paths.a_o_arc.map((o_arc, n_idx)=>{
+            return `sweep_arc(profile, arc_${n_idx}, n_segments=${n_segments});`;
         }).join('\n')}
 
         // Sweep circles
-        ${o_sketch.a_o_circle.map((o_circle, n_idx)=>{
-            return `
-            sweep_circle(profile, circle_${n_idx}, n_segments=${n_segments});
-            `;
+        ${o_sketch_sweep_paths.a_o_circle.map((o_circle, n_idx)=>{
+            return `sweep_circle(profile, circle_${n_idx}, n_segments=${n_segments});`;
         }).join('\n')}
 
     }
 }
+
+// Full pattern with tangent joints
+// sweep_profile: 2D points array for path_sweep (typically mirroredx profile)
+// joint_profile_for_revolve: 2D points array for revolve joints (x >= 0, typically for_revolve profile)
+// joint_profile_height: height of the joint profile (for translation in revolve)
+module ${s_name_sketch_sweep_paths}_full_pattern(
+    b_make_joints = true,
+    sweep_profile = ${s_name_sketch_profile}_mirroredx,
+    joint_profile_for_revolve = ${s_name_sketch_profile}_for_revolve,
+    joint_profile_height = ${s_name_sketch_profile}_height,
+    joint_angle = 90
+    ) {
+    union() {
+        ${s_name_sketch_sweep_paths}_sweep_pattern(sweep_profile);
+        if(b_make_joints){
+            ${s_name_sketch_sweep_paths}_place_revolve_joints_at_tangent_points(joint_profile_for_revolve, joint_profile_height, joint_angle);
+        }
+    }
+}
+
+    ${(b_run_profile_preview) ? `` : `//`}${s_name_sketch_profile}_preview();
+
+// Render sweep pattern only
+//${s_name_sketch_sweep_paths}_sweep_pattern(profile_default(scalefactor=0.2));
+
+
+$fn = 4;
+// $fn = 32;
+module part_with_difference(s=1){
+    difference(){
+    
+        color([0.,1.0, 0.5, 0.5])
+        ${s_name_sketch_sweep_paths}_full_pattern(
+            b_make_joints=true,
+            sweep_profile=${s_name_sketch_profile}_mirroredx_scaled(s=s),
+            joint_profile_for_revolve=${s_name_sketch_profile}_for_revolve_scaled(s=s),
+            joint_profile_height=${s_name_sketch_profile}_height * s,
+            joint_angle=90
+        );
+        
+        color([1.0,0.0, 0.0, 0.5])
+        translate([0, ${s_name_sketch_profile_remover}_height, 0])
+        ${s_name_sketch_sweep_paths}_full_pattern(
+            b_make_joints=false,
+            sweep_profile=${s_name_sketch_profile_remover}_mirroredx_scaled(s=s)
+        );
+    }
+}
+part_with_difference(s=0.5);
     `
     return s_scad;
 }
 
-let f_s_scad_profile_functions_from_o_sketch = function(o_sketch, s_profile_name = "profile"){
+let f_s_scad_profile_functions_from_o_sketch = function(o_sketch, s_profile_name = "profile", b_run_preview = false){
     let a_o_vec3 = o_sketch.a_o_vec3_trn;
 
     if(a_o_vec3.length === 0){
         return "// No points in profile\n";
     }
-    console.log(a_o_vec3.length)
-    console.log(a_o_vec3.length)
-    console.log(a_o_vec3.length)
 
     // calculate bounds
     let minX = Math.min(...a_o_vec3.map(p => p.n_x));
@@ -1017,85 +1122,102 @@ let f_s_scad_profile_functions_from_o_sketch = function(o_sketch, s_profile_name
     let maxY = Math.max(...a_o_vec3.map(p => p.n_y));
     let centerY = (minY + maxY) / 2;
 
-    // format point for SCAD output (shift so minX = 0, center on Y)
-    let f_s_point = function(p){
-        let x = p.n_x - minX;
-        let y = p.n_y - centerY;
-        return `[${x.toFixed(6)} * scalefactor, ${y.toFixed(6)} * scalefactor]`;
-    };
+    // 1. Compute xpositive points (shift so minX = 0, center on Y)
+    let a_xpositive = a_o_vec3.map(p => ({
+        x: p.n_x - minX,
+        y: p.n_y - centerY
+    }));
+
+    // 2. Compute mirroredx points (mirror xpositive, skip duplicates at X≈0)
+    let a_mirroredx = [...a_xpositive];
+    let lastIdx = a_xpositive.length - 1;
+    let startIdx = Math.abs(a_xpositive[lastIdx].x) < 0.0001 ? lastIdx - 1 : lastIdx;
+    let endIdx = Math.abs(a_xpositive[0].x) < 0.0001 ? 1 : 0;
+    for (let i = startIdx; i >= endIdx; i--) {
+        a_mirroredx.push({ x: -a_xpositive[i].x, y: a_xpositive[i].y });
+    }
+
+    // 3. Compute rotatedz points (rotate 90° CW: [x, y] -> [y, -x])
+    let a_rotatedz = a_mirroredx.map(p => ({ x: p.y, y: -p.x }));
+
+    // 4. Compute for_revolve points (rotatedz shifted so min_x = 0)
+    let rotatedMinX = Math.min(...a_rotatedz.map(p => p.x));
+    let a_for_revolve = a_rotatedz.map(p => ({ x: p.x - rotatedMinX, y: p.y }));
+
+    // Format point for SCAD output
+    let f_s_point = (p) => `[${p.x.toFixed(6)}, ${p.y.toFixed(6)}]`;
 
     let s_scad = `
-    include <BOSL2/std.scad>
-    // Profile: ${s_profile_name}
-// Points: ${a_o_vec3.length}
+include <BOSL2/std.scad>
+
+// Profile: ${s_profile_name}
+// Points: ${a_o_vec3.length} (xpositive), ${a_mirroredx.length} (mirrored)
 // Bounds: X[${minX.toFixed(4)}, ${maxX.toFixed(4)}] Y[${minY.toFixed(4)}, ${maxY.toFixed(4)}]
+
+// Profile bounding box
+// Width = max X * 2 (for mirrored profile)
+// Height = max Y after centering (half of total Y range)
+${s_profile_name}_width = ${((maxX - minX) * 2).toFixed(6)};
+${s_profile_name}_height = ${((maxY - minY) / 2).toFixed(6)};
+
+// Original DXF position (translation applied to normalize profile)
+${s_profile_name}_trn_x = ${minX.toFixed(6)};
+${s_profile_name}_trn_y = ${centerY.toFixed(6)};
 
 // Half profile from DXF (x-positive side, right half)
 // Useful for rotate_extrude which requires x >= 0
-function ${s_profile_name}_xpositive(scalefactor=1) = [
-${a_o_vec3.map(p => "    " + f_s_point(p)).join(",\n")}
+${s_profile_name}_xpositive = [
+${a_xpositive.map(p => "    " + f_s_point(p)).join(",\n")}
 ];
 
-// Full symmetric profile (mirrored from xpositive)
-// Skips duplicate points where the mirror joins (when points are at X=0)
-function ${s_profile_name}_mirroredx(scalefactor=1) =
-    let(half = ${s_profile_name}_xpositive(scalefactor))
-    let(last_idx = len(half) - 1)
-    // Skip endpoints in mirror if they're at X~=0 to avoid duplicates
-    let(start_idx = half[last_idx].x < 0.0001 ? last_idx - 1 : last_idx)
-    let(end_idx = half[0].x < 0.0001 ? 1 : 0)
-    let(mirrored = [for (i = [start_idx : -1 : end_idx]) [-half[i].x, half[i].y]])
-    concat(half, mirrored);
+// Full symmetric profile (mirrored from xpositive, pre-computed)
+${s_profile_name}_mirroredx = [
+${a_mirroredx.map(p => "    " + f_s_point(p)).join(",\n")}
+];
 
-// Full profile rotated 90 degrees clockwise around Z axis
-function ${s_profile_name}_mirroredx_rotatedz(scalefactor=1) =
-    let(full = ${s_profile_name}_mirroredx(scalefactor))
-    [for (p = full) [p.y, -p.x]];
+// Full profile rotated 90 degrees clockwise around Z axis (pre-computed)
+${s_profile_name}_rotatedz = [
+${a_rotatedz.map(p => "    " + f_s_point(p)).join(",\n")}
+];
 
-// Profile prepared for rotate_extrude around X axis
-function ${s_profile_name}_for_revolve_around_x(scalefactor=1) =
-    let(full = ${s_profile_name}_mirroredx(scalefactor))
-    let(rotated = [for (p = full) [p.y, -p.x]])
-    let(min_x = min([for (p = rotated) p.x]))
-    let(shifted = [for (p = rotated) [p.x - min_x, p.y]])
-    shifted;
+// Profile prepared for rotate_extrude around X axis (pre-computed)
+${s_profile_name}_for_revolve = [
+${a_for_revolve.map(p => "    " + f_s_point(p)).join(",\n")}
+];
 
-function profile_default(scalefactor=1) = ${s_profile_name}_mirroredx(scalefactor);
+// Scaled profile functions
+function ${s_profile_name}_xpositive_scaled(s=1) = [for (p = ${s_profile_name}_xpositive) [p.x * s, p.y * s]];
+function ${s_profile_name}_mirroredx_scaled(s=1) = [for (p = ${s_profile_name}_mirroredx) [p.x * s, p.y * s]];
+function ${s_profile_name}_rotatedz_scaled(s=1) = [for (p = ${s_profile_name}_rotatedz) [p.x * s, p.y * s]];
+function ${s_profile_name}_for_revolve_scaled(s=1) = [for (p = ${s_profile_name}_for_revolve) [p.x * s, p.y * s]];
+
+// Default profile (mirrored, for path_sweep)
+function profile_default(scalefactor=1) = ${s_profile_name}_mirroredx_scaled(scalefactor);
 
 // Module to revolve the profile around the X axis
 module ${s_profile_name}_revolve_around_x(scalefactor=1, angle=90) {
-    full = ${s_profile_name}_mirroredx(scalefactor);
-    rotated = [for (p = full) [p.y, -p.x]];
-    min_x = min([for (p = rotated) p.x]);
-
-    rotate([0, 0, -90])
-    translate([min_x, 0, 0])
+    rotate([90, 0, 180])
+    translate([0, -${s_profile_name}_height * scalefactor, 0])
     rotate_extrude(angle=angle, convexity=10)
-    polygon(${s_profile_name}_for_revolve_around_x(scalefactor));
+    polygon(${s_profile_name}_for_revolve_scaled(scalefactor));
 }
-
-// Profile bounding box
-${s_profile_name}_width = ${(maxX - minX).toFixed(6)};
-${s_profile_name}_height = ${(maxY - minY).toFixed(6)};
-${s_profile_name}_full_width = ${s_profile_name}_width * 2;
-${s_profile_name}_full_height = ${s_profile_name}_height;
 
 // Preview module - shows all profile variants
 module ${s_profile_name}_preview(scalefactor=1, test_length=100) {
-    spacing_y = ${s_profile_name}_full_height * scalefactor * 2 + 10;
+    spacing_y = ${s_profile_name}_height * scalefactor * 4 + 10;
     test_line = [[0, 0, 0], [test_length, 0, 0]];
 
     // Swept profiles
     color("red")
-    path_sweep(${s_profile_name}_mirroredx(scalefactor), test_line);
+    path_sweep(${s_profile_name}_mirroredx_scaled(scalefactor), test_line);
 
     translate([0, spacing_y, 0])
     color("green")
-    path_sweep(${s_profile_name}_xpositive(scalefactor), test_line);
+    path_sweep(${s_profile_name}_xpositive_scaled(scalefactor), test_line);
 
     translate([0, spacing_y * 2, 0])
     color("blue")
-    path_sweep(${s_profile_name}_mirroredx_rotatedz(scalefactor), test_line);
+    path_sweep(${s_profile_name}_rotatedz_scaled(scalefactor), test_line);
 
     // Revolve around X axis (90 degree turn)
     translate([0, spacing_y * 3, 0])
@@ -1106,20 +1228,21 @@ module ${s_profile_name}_preview(scalefactor=1, test_length=100) {
     translate([test_length + 20, 0, 0]) {
         color("red", 0.5)
         linear_extrude(1)
-        polygon(${s_profile_name}_mirroredx(scalefactor));
+        polygon(${s_profile_name}_mirroredx_scaled(scalefactor));
 
         translate([0, spacing_y, 0])
         color("green", 0.5)
         linear_extrude(1)
-        polygon(${s_profile_name}_xpositive(scalefactor));
+        polygon(${s_profile_name}_xpositive_scaled(scalefactor));
 
         translate([0, spacing_y * 2, 0])
         color("blue", 0.5)
         linear_extrude(1)
-        polygon(${s_profile_name}_mirroredx_rotatedz(scalefactor));
+        polygon(${s_profile_name}_rotatedz_scaled(scalefactor));
     }
 }
-    ${s_profile_name}_preview();
+
+${(b_run_preview) ? `` : `//`}${s_profile_name}_preview();
 
 `;
     return s_scad;

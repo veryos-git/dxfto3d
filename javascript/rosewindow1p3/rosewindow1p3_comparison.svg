@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="460.0000000000001" height="140.00000000000006" viewBox="0 0 460.0000000000001 140.00000000000006">
+  <style>
+    .original { stroke: blue; stroke-width: 1; }
+    .simplified { stroke: red; stroke-width: 2; }
+    .original-point { fill: darkblue; }
+    .simplified-point { fill: darkred; }
+    .path-point { fill: black; }
+    .title { font-family: Arial, sans-serif; font-size: 14px; fill: black; }
+  </style>
+
+  <!-- Original Lines -->
+  <g id="original" transform="translate(20, 20)">
+    <text x="50.000000000000014" y="-5" class="title" text-anchor="middle">Original (0 lines)</text>
+    <path d="M 64.64466094067264 64.64466094067265 A 20.71067811865475 20.71067811865475 0 0 1 50.00000000000003 100.00000000000003" class="original" fill="none" />
+    <path d="M 100.00000000000001 50.00000000000001 A 50.00000000000001 50.00000000000001 0 0 1 50.00000000000001 100.00000000000001" class="original" fill="none" />
+    <path d="M 100.00000000000001 50.00000000000002 A 20.71067811865475 20.71067811865475 0 0 1 64.64466094067261 64.64466094067261" class="original" fill="none" />
+    <path d="M 35.3553390593274 64.64466094067265 A 20.71067811865475 20.71067811865475 0 0 1 2.1316282072803006e-14 50.00000000000003" class="original" fill="none" />
+    <path d="M 50.00000000000002 100.00000000000004 A 20.71067811865475 20.71067811865475 0 0 1 35.35533905932739 64.64466094067267" class="original" fill="none" />
+    <path d="M 50.00000000000003 100.00000000000003 A 50.00000000000001 50.00000000000001 0 0 1 2.1316282072803006e-14 50.00000000000003" class="original" fill="none" />
+  </g>
+
+  <!-- Simplified Lines -->
+  <g id="simplified" transform="translate(160.00000000000003, 20)">
+    <text x="50.000000000000014" y="-5" class="title" text-anchor="middle">Simplified (0 lines)</text>
+  </g>
+
+  <!-- Paths -->
+  <g id="paths" transform="translate(300.00000000000006, 20)">
+    <text x="50.000000000000014" y="-5" class="title" text-anchor="middle">Paths (0 path(s))</text>
+  </g>
+</svg>
