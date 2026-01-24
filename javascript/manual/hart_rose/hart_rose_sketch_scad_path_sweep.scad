@@ -742,7 +742,7 @@ profile_full_height = 2.405539;
 
 // Original DXF position (translation applied to normalize profile)
 profile_full_trn_x = 0.000000;
-profile_full_trn_y = 2.405539;
+profile_full_trn_y = 0.000000;
 
 // Half profile from DXF (x-positive side, right half)
 // Useful for rotate_extrude which requires x >= 0
@@ -917,56 +917,63 @@ module profile_full_preview(scalefactor=1, test_length=100) {
 include <BOSL2/std.scad>
 
 // Profile: profile_remover
-// Points: 4 (xpositive), 6 (mirrored)
-// Bounds: X[0.0000, 0.6602] Y[3.4970, 4.8111]
+// Points: 5 (xpositive), 8 (mirrored)
+// Bounds: X[0.0000, 0.8274] Y[2.4088, 4.8111]
 
 // Profile bounding box
 // Width = max X * 2 (for mirrored profile)
 // Height = max Y after centering (half of total Y range)
-profile_remover_width = 1.320351;
-profile_remover_height = 0.657057;
+profile_remover_width = 1.654855;
+profile_remover_height = 1.201152;
 
 // Original DXF position (translation applied to normalize profile)
 profile_remover_trn_x = 0.000000;
-profile_remover_trn_y = 4.154020;
+profile_remover_trn_y = 2.408773;
 
 // Half profile from DXF (x-positive side, right half)
 // Useful for rotate_extrude which requires x >= 0
 profile_remover_xpositive = [
-    [0.000000, -0.657057],
-    [0.660175, 0.003118],
-    [0.000000, 0.657057],
-    [0.000000, -0.657057]
+    [0.000000, -1.201152],
+    [0.827428, 0.231995],
+    [0.000000, 1.201152],
+    [0.000000, -0.000000],
+    [0.000000, -1.201152]
 ];
 
 // Full symmetric profile (mirrored from xpositive, pre-computed)
 profile_remover_mirroredx = [
-    [0.000000, -0.657057],
-    [0.660175, 0.003118],
-    [0.000000, 0.657057],
-    [0.000000, -0.657057],
-    [0.000000, 0.657057],
-    [-0.660175, 0.003118]
+    [0.000000, -1.201152],
+    [0.827428, 0.231995],
+    [0.000000, 1.201152],
+    [0.000000, -0.000000],
+    [0.000000, -1.201152],
+    [-0.000000, -0.000000],
+    [0.000000, 1.201152],
+    [-0.827428, 0.231995]
 ];
 
 // Full profile rotated 90 degrees clockwise around Z axis (pre-computed)
 profile_remover_rotatedz = [
-    [-0.657057, -0.000000],
-    [0.003118, -0.660175],
-    [0.657057, 0.000000],
-    [-0.657057, -0.000000],
-    [0.657057, 0.000000],
-    [0.003118, 0.660175]
+    [-1.201152, -0.000000],
+    [0.231995, -0.827428],
+    [1.201152, 0.000000],
+    [-0.000000, -0.000000],
+    [-1.201152, -0.000000],
+    [-0.000000, 0.000000],
+    [1.201152, 0.000000],
+    [0.231995, 0.827428]
 ];
 
 // Profile prepared for rotate_extrude around X axis (pre-computed)
 profile_remover_for_revolve = [
     [0.000000, -0.000000],
-    [0.660175, -0.660175],
-    [1.314114, 0.000000],
+    [1.433147, -0.827428],
+    [2.402304, 0.000000],
+    [1.201152, -0.000000],
     [0.000000, -0.000000],
-    [1.314114, 0.000000],
-    [0.660175, 0.660175]
+    [1.201152, 0.000000],
+    [2.402304, 0.000000],
+    [1.433147, 0.827428]
 ];
 
 // Scaled profile functions
@@ -1410,7 +1417,7 @@ module part_with_difference(s=1){
         );
         
         color([1.0,0.0, 0.0, 0.5])
-        translate([0, profile_remover_height, 0])
+        translate([0, 0, profile_remover_trn_y*s])
         hart_rose_full_pattern(
             b_make_joints=false,
             sweep_profile=profile_remover_mirroredx_scaled(s=s)

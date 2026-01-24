@@ -1096,7 +1096,7 @@ module part_with_difference(s=1){
         );
         
         color([1.0,0.0, 0.0, 0.5])
-        translate([0, ${s_name_sketch_profile_remover}_height, 0])
+        translate([0, 0, ${s_name_sketch_profile_remover}_trn_y*s])
         ${s_name_sketch_sweep_paths}_full_pattern(
             b_make_joints=false,
             sweep_profile=${s_name_sketch_profile_remover}_mirroredx_scaled(s=s)
@@ -1162,7 +1162,7 @@ ${s_profile_name}_height = ${((maxY - minY) / 2).toFixed(6)};
 
 // Original DXF position (translation applied to normalize profile)
 ${s_profile_name}_trn_x = ${minX.toFixed(6)};
-${s_profile_name}_trn_y = ${centerY.toFixed(6)};
+${s_profile_name}_trn_y = ${minY.toFixed(6)};
 
 // Half profile from DXF (x-positive side, right half)
 // Useful for rotate_extrude which requires x >= 0

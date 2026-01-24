@@ -13,7 +13,7 @@ profile_full_height = 2.405539;
 
 // Original DXF position (translation applied to normalize profile)
 profile_full_trn_x = 0.000000;
-profile_full_trn_y = 2.405539;
+profile_full_trn_y = 0.000000;
 
 // Half profile from DXF (x-positive side, right half)
 // Useful for rotate_extrude which requires x >= 0
